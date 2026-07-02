@@ -57,56 +57,101 @@
             background-color: var(--accent-color);
         }
 
-        /* FLOATING MACRO UTILITY POPOVER (SAFE & DISCONNECTED FROM TYPING TEXT) */
+        /* PREMIUM MINIMALIST FLOATING MACRO CONTROLLER BAR */
         .global-macro-toast {
             position: fixed;
-            top: 65px;
+            top: 70px;
             left: 50%;
             transform: translateX(-50%);
-            background: #000000;
+            background: #111111;
             color: #ffffff;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 10px 20px;
+            border-radius: 6px;
             display: none;
             align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #222222;
             z-index: 200;
             font-size: 13px;
+            letter-spacing: 0.3px;
+        }
+
+        .toast-label-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-right: 1px solid #333333;
+            padding-right: 16px;
+        }
+
+        .toast-info-text {
+            color: #888888;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .toast-label {
-            font-family: monospace;
+            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
             font-weight: bold;
-            background: #333;
-            padding: 2px 6px;
-            border-radius: 3px;
+            color: #ffffff;
+            background: #252525;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            border: 1px solid #3a3a3a;
+        }
+
+        .toast-action-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .toast-btn {
-            background: #fff;
-            color: #000;
+            background: #ffffff;
+            color: #000000;
             border: none;
+            font-family: inherit;
             font-size: 11px;
-            font-weight: bold;
+            font-weight: 600;
             text-transform: uppercase;
-            padding: 4px 10px;
+            letter-spacing: 0.3px;
+            padding: 6px 12px;
             cursor: pointer;
-            border-radius: 2px;
+            border-radius: 4px;
+            transition: background 0.15s ease;
         }
 
         .toast-btn:hover {
-            background: #ddd;
+            background: #dddddd;
         }
 
         .toast-btn-secondary {
             background: transparent;
-            color: #fff;
-            border: 1px solid #fff;
+            color: #ffffff;
+            border: 1px solid #333333;
         }
 
         .toast-btn-secondary:hover {
-            background: rgba(255,255,255,0.1);
+            background: #222222;
+            border-color: #444444;
+        }
+
+        .toast-close-btn {
+            background: transparent;
+            border: none;
+            color: #666666;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+            transition: color 0.15s ease;
+        }
+
+        .toast-close-btn:hover {
+            color: #ffffff;
         }
 
         /* Main Workspace Canvas Layout */
@@ -114,7 +159,7 @@
             flex-grow: 1;
             display: flex;
             justify-content: center;
-            padding-top: 120px;
+            padding-top: 140px;
             padding-bottom: 80px;
             transition: margin-right 0.25s ease;
         }
@@ -246,12 +291,17 @@
     <input type="file" id="importFile" style="display:none" accept=".json" onchange="importJSON(event)">
 </div>
 
-<!-- Floating Top Status/Action Toast -->
+<!-- TOP CONTROL NOTIFICATION PANEL -->
 <div id="macroToast" class="global-macro-toast">
-    <span>Expanded: <span id="activeMacroKey" class="toast-label">code</span></span>
-    <button class="toast-btn" onclick="triggerCollapseHistory()">Hide Back to Code</button>
-    <button class="toast-btn toast-btn-secondary" onclick="copyActiveMacroText()">Copy Text</button>
-    <button class="toast-btn toast-btn-secondary" style="border:none;" onclick="closeToast()">×</button>
+    <div class="toast-label-group">
+        <span class="toast-info-text">Active Code</span>
+        <span id="activeMacroKey" class="toast-label">code</span>
+    </div>
+    <div class="toast-action-group">
+        <button class="toast-btn" onclick="triggerCollapseHistory()">Hide Back to Code</button>
+        <button class="toast-btn toast-btn-secondary" onclick="copyActiveMacroText()">Copy Text</button>
+    </div>
+    <button class="toast-close-btn" onclick="closeToast()">✕</button>
 </div>
 
 <div id="canvasContainer" class="canvas-container">
@@ -276,6 +326,9 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
 </div>
 
 <script>
+    // Configuration target for master asset file deployment paths
+    const JSON_URL = './library.json';
+
     let dictionary = JSON.parse(localStorage.getItem('notebook_rich_canvas_macros')) || {
         "Adam": "Adam ate apple and got pushed from heaven",
         "eve": "eve is Adam’s partner"
@@ -291,10 +344,26 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
     let rangeCached = null;
     let selectedTextHTML = "";
 
-    // Track state of the last automation replacement node to safely allow collapse history routing
     let lastExpandedKey = "";
     let lastExpandedLength = 0;
-    let lastExpandedIndexStart = 0;
+
+    // Async loader synchronization layer for structural asset files
+    async function loadExternalLibrary() {
+        try {
+            const response = await fetch(JSON_URL);
+            if (!response.ok) throw new Error("Asset not encountered at deployed server root path reference mapping context.");
+            
+            const remoteData = await response.json();
+            
+            // Unify network repository definitions alongside current browser local state tracking profiles
+            dictionary = { ...remoteData, ...dictionary };
+            saveState();
+            renderSidebar();
+            console.log("Central dictionary profiles unified successfully.");
+        } catch (err) {
+            console.warn("External asset configuration unresolved, routing to standard client tracking states: ", err);
+        }
+    }
 
     function toggleSidebar() {
         sidebar.classList.toggle('open');
@@ -312,7 +381,7 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
         }
     }
 
-    // 1. Safe, Stable Text Expansion Engine
+    // 1. Core Text Expansion Engine
     function handleKeyDown(e) {
         if (e.key === ' ' || e.key === 'Enter') {
             const selection = window.getSelection();
@@ -330,21 +399,18 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
                 const lastWord = words[words.length - 1];
 
                 if (dictionary[lastWord]) {
-                    e.preventDefault(); // Stop native space addition line step
+                    e.preventDefault(); 
                     
                     const wordStartOffset = cursorOffset - lastWord.length;
                     
-                    // 1. Delete word characters cleanly from standard layout string arrays
                     textNode.deleteData(wordStartOffset, lastWord.length);
                     range.setStart(textNode, wordStartOffset);
                     range.collapse(true);
                     
-                    // 2. Build temporary node layout fragment to inject raw target text blocks safely
                     const fragment = document.createDocumentFragment();
                     const tempEl = document.createElement("div");
                     tempEl.innerHTML = dictionary[lastWord];
                     
-                    // Trace character counts to assist toggle histories
                     const textContentStripped = tempEl.innerText || tempEl.textContent;
                     lastExpandedLength = textContentStripped.length;
                     lastExpandedKey = lastWord;
@@ -353,21 +419,17 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
                         fragment.appendChild(tempEl.firstChild);
                     }
                     
-                    // 3. Insert pure text run natively right into standard flow tree
                     range.insertNode(fragment);
                     
-                    // Add requested continuation line spacer
                     const tailSpacer = document.createTextNode(e.key === ' ' ? '\u00A0' : '\n\n');
                     range.collapse(false);
                     range.insertNode(tailSpacer);
                     
-                    // Shift layout caret focus path directly past expanded items
                     range.setStartAfter(tailSpacer);
                     range.collapse(true);
                     selection.removeAllRanges();
                     selection.addRange(range);
 
-                    // 4. Update detached top menu overlay UI state safely
                     activeMacroKey.innerText = lastWord;
                     macroToast.style.display = 'flex';
                     saveState();
@@ -376,16 +438,13 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
         }
     }
 
-    // Safely replaces the expanded segment text with the original keyword, if available
     function triggerCollapseHistory() {
         if (!lastExpandedKey || !dictionary[lastExpandedKey]) return;
         
-        // Use a clean search replacement against editor source window to target macro boundaries safely
         const expandedValue = dictionary[lastExpandedKey];
         const currentHTML = editor.innerHTML;
         
         if (currentHTML.includes(expandedValue)) {
-            // Swap text back to the shorthand word token naturally
             editor.innerHTML = currentHTML.replace(expandedValue, lastExpandedKey);
             closeToast();
         } else {
@@ -411,11 +470,13 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
         })];
 
         navigator.clipboard.write(data).then(() => {
-            alert(`"${lastExpandedKey}" markup content saved into clipboard.`);
+            const oldText = activeMacroKey.innerText;
+            activeMacroKey.innerText = "COPIED!";
+            setTimeout(() => { activeMacroKey.innerText = oldText; }, 1000);
         });
     }
 
-    // 2. Selection Action Hooks
+    // 2. Text Selection Hooks
     editor.addEventListener('contextmenu', function(e) {
         const selection = window.getSelection();
         const selectedText = selection.toString().trim();
@@ -446,7 +507,6 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
         saveState();
         renderSidebar();
         
-        // Replace highlight selection with plain text token representation name item
         rangeCached.deleteContents();
         const shortcutToken = document.createTextNode(codeKey.trim() + '\u00A0');
         rangeCached.insertNode(shortcutToken);
@@ -506,14 +566,14 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
                     renderSidebar();
                 }
             } catch (err) {
-                alert("Invalid format blueprint configuration profiles.");
+                alert("Incorrect document format configuration template profiles layout data structural alignment mapping errors.");
             }
         };
         reader.readAsText(file);
     }
 
     function clearAll() {
-        if(confirm("Purge global dictionary collection?")) {
+        if(confirm("Purge dictionary?")) {
             dictionary = {};
             saveState();
             renderSidebar();
@@ -524,7 +584,9 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
         return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
+    // Boot execution loop triggers
     renderSidebar();
+    loadExternalLibrary();
 </script>
 </body>
 </html>
