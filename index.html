@@ -57,7 +57,7 @@
             background-color: var(--accent-color);
         }
 
-        /* PREMIUM MINIMALIST FLOATING MACRO CONTROLLER BAR */
+        /* PREMIUM FLOATING MACRO CONTROLLER BAR */
         .global-macro-toast {
             position: fixed;
             top: 70px;
@@ -154,6 +154,60 @@
             color: #ffffff;
         }
 
+        /* DYNAMIC FLOATING SELECTION FORMATTING TOOLBAR */
+        .floating-formatter-bar {
+            position: absolute;
+            background: #111111;
+            border: 1px solid #222222;
+            padding: 6px;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            display: none;
+            align-items: center;
+            gap: 4px;
+            z-index: 300;
+            user-select: none;
+        }
+
+        .format-btn {
+            background: transparent;
+            color: #ffffff;
+            border: none;
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.1s ease;
+        }
+
+        .format-btn:hover {
+            background: #252525;
+        }
+
+        .format-select {
+            background: #252525;
+            color: #ffffff;
+            border: 1px solid #3a3a3a;
+            padding: 3px 6px;
+            font-size: 11px;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+
+        .format-divider {
+            width: 1px;
+            height: 18px;
+            background: #333333;
+            margin: 0 4px;
+        }
+
         /* Main Workspace Canvas Layout */
         .canvas-container {
             flex-grow: 1;
@@ -233,11 +287,17 @@
         }
 
         .code-item {
-            padding: 8px 0;
+            padding: 8px 10px;
             border-bottom: 1px solid #f5f5f5;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-radius: 4px;
+            transition: background 0.1s ease;
+        }
+
+        .code-item:hover {
+            background: #fcfcfc;
         }
 
         .code-key {
@@ -248,6 +308,12 @@
             padding: 2px 6px;
             font-size: 12px;
             border-radius: 2px;
+            cursor: pointer;
+            transition: transform 0.05s ease;
+        }
+        
+        .code-key:active {
+            transform: scale(0.95);
         }
 
         .remove-btn {
@@ -255,9 +321,10 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 14px;
+            padding: 0 4px;
         }
 
-        /* Right-click Selection Tool */
+        /* Right-click Context Menu */
         .context-menu {
             position: absolute;
             display: none;
@@ -279,11 +346,46 @@
         .context-menu-item:hover {
             background: #222;
         }
+
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+            .top-navbar, 
+            .global-macro-toast, 
+            .drawer-sidebar, 
+            .context-menu,
+            .floating-formatter-bar {
+                display: none !important;
+            }
+            .canvas-container {
+                padding-top: 0 !important;
+                margin-right: 0 !important;
+                display: block !important;
+            }
+            .document-body {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .editor-title {
+                font-size: 28pt !important;
+                margin-bottom: 20pt !important;
+                border: none !important;
+            }
+            .editor-canvas {
+                font-size: 12pt !important;
+                line-height: 1.6 !important;
+                min-height: auto !important;
+            }
+        }
     </style>
 </head>
 <body>
 
 <div class="top-navbar">
+    <button class="nav-btn" style="color: #004ccb; font-weight: bold;" onclick="downloadAsPDF()">Download PDF</button>
     <button class="nav-btn" style="color: red;" onclick="clearCanvas()">Wipe Canvas</button>
     <button class="nav-btn" onclick="exportJSON()">Export</button>
     <button class="nav-btn" onclick="document.getElementById('importFile').click()">Import</button>
@@ -304,9 +406,31 @@
     <button class="toast-close-btn" onclick="closeToast()">✕</button>
 </div>
 
+<!-- FLOATING TEXT FORMATTER TOOLBAR ASSET -->
+<div id="formatterBar" class="floating-formatter-bar">
+    <select class="format-select" onchange="executeFormat('fontSize', this.value); this.selectedIndex=0;">
+        <option value="" selected disabled>Size</option>
+        <option value="3">Small</option>
+        <option value="4">Normal</option>
+        <option value="5">Medium</option>
+        <option value="6">Large</option>
+        <option value="7">Extra Large</option>
+    </select>
+    <div class="format-divider"></div>
+    <button class="format-btn" onclick="executeFormat('bold')" title="Bold"><b>B</b></button>
+    <button class="format-btn" onclick="executeFormat('italic')" title="Italic"><i>I</i></button>
+    <button class="format-btn" onclick="executeFormat('underline')" title="Underline"><u>U</u></button>
+    <button class="format-btn" onclick="executeFormat('strikeThrough')" title="Strikethrough">~~</button>
+    <div class="format-divider"></div>
+    <button class="format-btn" onclick="executeFormat('justifyLeft')" title="Align Left">⌸</button>
+    <button class="format-btn" onclick="executeFormat('justifyCenter')" title="Align Center">⌺</button>
+    <button class="format-btn" onclick="executeFormat('justifyRight')" title="Align Right">⌹</button>
+    <button class="format-btn" onclick="executeFormat('justifyFull')" title="Justify">☰</button>
+</div>
+
 <div id="canvasContainer" class="canvas-container">
     <div class="document-body">
-        <div class="editor-title" contenteditable="true" placeholder="Untitled"></div>
+        <div id="docTitle" class="editor-title" contenteditable="true" placeholder="Untitled"></div>
         <div id="editor" class="editor-canvas" contenteditable="true" onkeydown="handleKeyDown(event)">Start typing here. Complete workspace freedom.
 
 Highlight a phrase, paragraph, formatting blocks, or live <a href="https://example.com" target="_blank">hyperlinks like this one</a>, right-click the selection, and convert it instantly into a code shortcut.
@@ -328,7 +452,6 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
 <script>
     const JSON_URL = './library.json';
 
-    // Seed raw fallbacks explicitly
     let dictionary = JSON.parse(localStorage.getItem('notebook_rich_canvas_macros')) || {
         "Adam": "Adam ate apple and got pushed from heaven",
         "eve": "eve is Adam’s partner"
@@ -340,14 +463,17 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
     const customMenu = document.getElementById('customMenu');
     const macroToast = document.getElementById('macroToast');
     const activeMacroKey = document.getElementById('activeMacroKey');
+    const formatterBar = document.getElementById('formatterBar');
     
     let rangeCached = null;
     let selectedTextHTML = "";
 
     let lastExpandedKey = "";
     let lastExpandedValueAppended = "";
+    
+    // Track cursor location globally to allow precision sidebar injection routing
+    let lastSavedSelectionRange = null;
 
-    // SMART INTERACTIVE INITIALIZATION MERGE CONTROLLER
     async function loadExternalLibrary() {
         try {
             const cacheBusterUrl = `${JSON_URL}?v=${new Date().getTime()}`;
@@ -362,30 +488,133 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
             });
             
             if (!response.ok) throw new Error(`Status: ${response.status}`);
-            
             const remoteData = await response.json();
-            console.log("Remote JSON payload downloaded:", remoteData);
             
-            // Loop over remote data keys selectively instead of wiping your local updates out
             Object.keys(remoteData).forEach(key => {
                 if (dictionary[key]) {
-                    // Core Fix: If the local browser data already contains this key, check if it's identical
-                    // If it's different (e.g. you added paragraphs locally), ensure your local edits remain intact or cleanly appended
                     if (!dictionary[key].includes(remoteData[key])) {
                         dictionary[key] = remoteData[key] + "<br><br>" + dictionary[key];
                     }
                 } else {
-                    // New key from file seed
                     dictionary[key] = remoteData[key];
                 }
             });
             
             saveState();
             renderSidebar();
-            console.log("Master dictionary profiles successfully synchronized without destructive over-writes.");
         } catch (err) {
-            console.warn("External asset fetch skipped or unavailable, operating seamlessly via browser state profiles:", err);
+            console.warn("External asset fetch skipped or unavailable.");
         }
+    }
+
+    // Cache the cursor caret location whenever you type or click inside the document
+    function trackCaretPosition() {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0 && editor.contains(selection.anchorNode)) {
+            lastSavedSelectionRange = selection.getRangeAt(0).cloneRange();
+        }
+    }
+    editor.addEventListener('click', trackCaretPosition);
+    editor.addEventListener('keyup', trackCaretPosition);
+
+    // SIDEBAR EXPANSION CLICK ACTION TRIGGER
+    function injectMacroFromRegistry(key) {
+        if (!dictionary[key]) return;
+
+        editor.focus();
+        const selection = window.getSelection();
+        let targetRange = null;
+
+        // Route positioning structural frames selectively
+        if (lastSavedSelectionRange && editor.contains(lastSavedSelectionRange.startContainer)) {
+            targetRange = lastSavedSelectionRange.cloneRange();
+        } else {
+            // Safe Fallback: If no previous caret exists, create a fresh block sequence at the end of the notes container
+            targetRange = document.createRange();
+            targetRange.selectNodeContents(editor);
+            targetRange.collapse(false); // Snap precisely to absolute bottom boundary tail
+        }
+
+        // Generate rich layout node tree run fragment structures safely
+        const fragment = document.createDocumentFragment();
+        const tempEl = document.createElement("div");
+        const macroPayload = dictionary[key];
+        tempEl.innerHTML = macroPayload;
+
+        lastExpandedValueAppended = macroPayload;
+        lastExpandedKey = key;
+
+        while (tempEl.firstChild) {
+            fragment.appendChild(tempEl.firstChild);
+        }
+
+        // Insert text nodes directly onto document layer track paths
+        targetRange.insertNode(fragment);
+
+        // Append a clean following inline spacer character run block
+        const tailSpacer = document.createTextNode('\u00A0');
+        targetRange.collapse(false);
+        targetRange.insertNode(tailSpacer);
+
+        // Advance layout cursor focus point to clear inserted elements instantly
+        targetRange.setStartAfter(tailSpacer);
+        targetRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(targetRange);
+
+        // Cache updated selection frame pointers sequentially
+        lastSavedSelectionRange = targetRange.cloneRange();
+
+        // Reveal the premium macro controller tray status overview pane
+        activeMacroKey.innerText = key;
+        macroToast.style.display = 'flex';
+    }
+
+    function executeFormat(command, value = null) {
+        document.execCommand(command, false, value);
+        editor.focus();
+        updateFormatterPosition();
+    }
+
+    document.addEventListener('selectionchange', updateFormatterPosition);
+    window.addEventListener('resize', updateFormatterPosition);
+    editor.addEventListener('scroll', updateFormatterPosition);
+
+    function updateFormatterPosition() {
+        const selection = window.getSelection();
+        
+        if (!selection.rangeCount || selection.isCollapsed || !editor.contains(selection.anchorNode)) {
+            formatterBar.style.display = 'none';
+            return;
+        }
+
+        const range = selection.getRangeAt(0);
+        const rects = range.getClientRects();
+        if (rects.length === 0) return;
+
+        const firstRect = rects[0];
+        const toolbarWidth = formatterBar.offsetWidth || 340;
+        const toolbarHeight = formatterBar.offsetHeight || 42;
+
+        const calculatedLeft = (firstRect.left + (firstRect.width / 2)) - (toolbarWidth / 2) + window.scrollX;
+        const calculatedTop = firstRect.top - toolbarHeight - 8 + window.scrollY;
+
+        formatterBar.style.left = `${Math.max(10, calculatedLeft)}px`;
+        formatterBar.style.top = `${Math.max(10, calculatedTop)}px`;
+        formatterBar.style.display = 'flex';
+    }
+
+    function downloadAsPDF() {
+        const titleText = document.getElementById('docTitle').innerText.trim();
+        const originalDocumentTitle = document.title;
+        
+        document.title = titleText ? titleText : "Shorthand_Draft_Document";
+        formatterBar.style.display = 'none'; 
+        
+        if (sidebar.classList.contains('open')) toggleSidebar();
+        
+        window.print();
+        document.title = originalDocumentTitle;
     }
 
     function toggleSidebar() {
@@ -400,12 +629,17 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
     function clearCanvas() {
         if(confirm("Wipe entire workspace clear?")) {
             editor.innerHTML = "";
+            document.getElementById('docTitle').innerHTML = "";
             closeToast();
+            formatterBar.style.display = 'none';
+            lastSavedSelectionRange = null;
         }
     }
 
-    // Core Key Down Parser Lookups
     function handleKeyDown(e) {
+        // Track internal mutations inside key triggers explicitly
+        setTimeout(trackCaretPosition, 1);
+
         if (e.key === ' ' || e.key === 'Enter') {
             const selection = window.getSelection();
             if (!selection.rangeCount) return;
@@ -457,6 +691,7 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
                     activeMacroKey.innerText = lastWord;
                     macroToast.style.display = 'flex';
                     saveState();
+                    lastSavedSelectionRange = range.cloneRange();
                 }
             }
         }
@@ -469,6 +704,7 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
         if (currentHTML.includes(lastExpandedValueAppended)) {
             editor.innerHTML = currentHTML.replace(lastExpandedValueAppended, lastExpandedKey);
             closeToast();
+            lastSavedSelectionRange = null;
         } else {
             alert("The expanded text has been modified or cleared.");
             closeToast();
@@ -516,9 +752,10 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
         }
     });
 
-    document.addEventListener('click', () => customMenu.style.display = 'none');
+    document.addEventListener('click', (e) => {
+        if (!customMenu.contains(e.target)) customMenu.style.display = 'none';
+    });
 
-    // Smart Paragraph Append Engine Configuration Lookups
     function processSelectionConfig() {
         if (!selectedTextHTML || !rangeCached) return;
         
@@ -527,7 +764,6 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
         const codeKey = rawKey.trim();
 
         if (dictionary[codeKey]) {
-            // Append as fresh paragraph sequence cleanly
             dictionary[codeKey] = dictionary[codeKey] + "<br><br>" + selectedTextHTML;
         } else {
             dictionary[codeKey] = selectedTextHTML;
@@ -554,6 +790,7 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
         localStorage.setItem('notebook_rich_canvas_macros', JSON.stringify(dictionary));
     }
 
+    // UPDATED RENDER ROUTINE: Assigns execution hooks to click handlers on the badge key elements
     function renderSidebar() {
         const container = document.getElementById('codeList');
         container.innerHTML = '';
@@ -564,8 +801,8 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
             const textPreview = dictionary[key].replace(/<[^>]*>/g, '');
 
             div.innerHTML = `
-                <span class="code-key" title="${textPreview.substring(0, 100)}">${escapeHtml(key)}</span>
-                <span class="remove-btn" onclick="removeMacro('${key}')">×</span>
+                <span class="code-key" title="Click to insert expansion into canvas\n\nPreview:\n${textPreview.substring(0, 100)}..." onclick="injectMacroFromRegistry('${escapeHtml(key)}')">${escapeHtml(key)}</span>
+                <span class="remove-btn" onclick="event.stopPropagation(); removeMacro('${key}')">×</span>
             `;
             container.appendChild(div);
         });
@@ -595,7 +832,7 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
                     renderSidebar();
                 }
             } catch (err) {
-                alert("Format error tracking profiles.");
+                alert("Incorrect data format.");
             }
         };
         reader.readAsText(file);
