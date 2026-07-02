@@ -346,24 +346,30 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
     let lastExpandedKey = "";
     let lastExpandedLength = 0;
 
-    // Async loader synchronization with millisecond cache busting
+    // Fixed load module forcing live server fetch operations
     async function loadExternalLibrary() {
         try {
-            // Appends dynamic timestamp query parameters to force cache invalidation across Vercel edge paths
             const cacheBusterUrl = `${JSON_URL}?v=${new Date().getTime()}`;
             
-            const response = await fetch(cacheBusterUrl);
-            if (!response.ok) throw new Error("Asset not encountered at server path configuration reference mapping.");
+            // Force browser network stack out of historical storage lookups
+            const response = await fetch(cacheBusterUrl, {
+                method: 'GET',
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                }
+            });
+            if (!response.ok) throw new Error("Asset not loaded.");
             
             const remoteData = await response.json();
             
-            // Merge central asset indices seamlessly alongside local dictionary browser spaces
             dictionary = { ...remoteData, ...dictionary };
             saveState();
             renderSidebar();
-            console.log("Central dictionary variables unified successfully with live server profiles.");
+            console.log("Data loaded fresh.");
         } catch (err) {
-            console.warn("External asset configuration unverified, parsing standard tracking loops: ", err);
+            console.warn("Falling back to local data storage loops: ", err);
         }
     }
 
@@ -383,7 +389,6 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
         }
     }
 
-    // 1. Core Expansion Parsing Engine
     function handleKeyDown(e) {
         if (e.key === ' ' || e.key === 'Enter') {
             const selection = window.getSelection();
@@ -450,7 +455,7 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
             editor.innerHTML = currentHTML.replace(expandedValue, lastExpandedKey);
             closeToast();
         } else {
-            alert("The expanded text has been modified or cleared. Cannot contract back automatically.");
+            alert("The expanded text has been modified or cleared.");
             closeToast();
         }
     }
@@ -478,7 +483,6 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
         });
     }
 
-    // 2. Structural selection handlers
     editor.addEventListener('contextmenu', function(e) {
         const selection = window.getSelection();
         const selectedText = selection.toString().trim();
@@ -568,7 +572,7 @@ Type a shorthand name followed by a Space, and it will expand automatically on t
                     renderSidebar();
                 }
             } catch (err) {
-                alert("Incorrect data format template profile profiling structural configuration schema errors.");
+                alert("Incorrect document format parsing errors.");
             }
         };
         reader.readAsText(file);
