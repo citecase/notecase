@@ -24,15 +24,15 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Top Bar Controls */
+        /* Top Navbar - Grid Layout for Perfect Center Alignment */
         .top-navbar {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             height: 55px;
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
             align-items: center;
             padding: 0 16px;
             background: rgba(255, 255, 255, 0.95);
@@ -50,12 +50,57 @@
             text-transform: uppercase;
             color: #000;
             user-select: none;
+            justify-self: start;
+        }
+
+        /* CENTRALIZED HEADER SEARCH PANEL COMPONENT */
+        .header-search-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .search-input {
+            background: var(--accent-color);
+            border: 1px solid var(--border-color);
+            color: #000000;
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 20px;
+            outline: none;
+            width: 280px;
+            text-align: center;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .search-input:focus {
+            background: #ffffff;
+            border-color: #a0a0a0;
+            width: 340px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .search-mode-indicator {
+            position: absolute;
+            top: 34px;
+            font-size: 9px;
+            color: #888888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: none;
+            background: #ffffff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
         }
 
         .nav-btn-group {
             display: flex;
             align-items: center;
             gap: 4px;
+            justify-self: end;
         }
 
         .nav-btn {
@@ -77,60 +122,7 @@
             background-color: var(--accent-color);
         }
 
-        /* DYNAMIC ADVANCED SEARCH INPUT COMPONENT */
-        .search-overlay-bar {
-            position: fixed;
-            top: 60px;
-            right: 20px;
-            background: #111111;
-            padding: 8px 12px;
-            border-radius: 6px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            z-index: 150;
-            border: 1px solid #222222;
-        }
-
-        .search-input-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .search-input {
-            background: #222222;
-            border: 1px solid #333333;
-            color: #ffffff;
-            padding: 6px 10px;
-            font-size: 13px;
-            border-radius: 4px;
-            outline: none;
-            width: 240px;
-            font-family: inherit;
-        }
-
-        .search-mode-indicator {
-            font-size: 10px;
-            color: #888888;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-left: 2px;
-        }
-
-        .search-close-icon {
-            background: transparent;
-            border: none;
-            color: #888888;
-            cursor: pointer;
-            font-size: 12px;
-            padding: 2px;
-        }
-
-        .search-close-icon:hover { color: #ffffff; }
-
-        /* Highlight classes */
+        /* Dynamic Match Highlights */
         mark.search-match {
             background-color: #ffeb3b !important;
             color: #000000 !important;
@@ -192,6 +184,14 @@
             color: #222;
         }
 
+        .search-close-icon {
+            background: transparent;
+            border: none;
+            color: #888888;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
         /* FLOATING MACRO CONTROLLER BAR */
         .global-macro-toast {
             position: fixed;
@@ -237,7 +237,7 @@
             border: 1px solid #222222;
             padding: 4px;
             border-radius: 6px;
-            box-shadow: 0 8px 24 rgba(0,0,0,0.2);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
             display: none;
             align-items: center;
             gap: 2px;
@@ -334,17 +334,7 @@
         .code-list { flex-grow: 1; overflow-y: auto; margin-bottom: 16px; -webkit-overflow-scrolling: touch; }
         .code-item { padding: 10px 6px; border-bottom: 1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center; }
         
-        .code-key {
-            font-family: monospace;
-            font-weight: bold;
-            background: #000;
-            color: #fff;
-            padding: 4px 8px;
-            font-size: 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            touch-action: manipulation;
-        }
+        .code-key { font-family: monospace; font-weight: bold; background: #000; color: #fff; padding: 4px 8px; font-size: 12px; border-radius: 4px; cursor: pointer; touch-action: manipulation; }
         .code-key:active { transform: scale(0.95); }
         .remove-btn { color: #aa0000; cursor: pointer; font-weight: bold; font-size: 16px; padding: 4px 8px; }
 
@@ -354,11 +344,11 @@
 
         /* MOBILE RESPONSIVE MEDIA QUERIES */
         @media (max-width: 768px) {
-            .brand-title { font-size: 13px; }
-            .nav-btn { padding: 6px 6px; font-size: 11px; }
-            .canvas-container { padding-top: 85px; }
-            .search-overlay-bar { left: 16px; right: 16px; width: auto; top: 60px; }
-            .search-input { width: 100%; }
+            .top-navbar { grid-template-columns: 1fr; gap: 8px; height: auto; padding: 10px 16px; }
+            .brand-title { justify-self: center; }
+            .search-input { width: 100% !important; }
+            .nav-btn-group { justify-self: center; width: 100%; justify-content: center; }
+            .canvas-container { padding-top: 140px; }
         }
 
         @media (min-width: 992px) { .canvas-container.sidebar-open { padding-right: 300px; } }
@@ -368,29 +358,26 @@
 
 <div class="top-navbar">
     <div class="brand-title">NoteCiter</div>
+    
+    <!-- CENTRALIZED STATIC HEADER SEARCH INTERACTION LAYER -->
+    <div class="header-search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search Canvas & Library (Quotes = Exact)..." oninput="executeGlobalDualSearch(this.value)">
+        <div id="searchModeIndicator" class="search-mode-indicator">Mode: Ready</div>
+    </div>
+    
     <div class="nav-btn-group">
-        <button class="nav-btn" style="color: #004ccb; font-weight: bold;" onclick="toggleSearchBar()">Find 🔍</button>
-        <button class="nav-btn" style="color: #000; font-weight: bold;" onclick="downloadAsPDF()">PDF</button>
+        <button class="nav-btn" style="color: #004ccb; font-weight: bold;" onclick="downloadAsPDF()">PDF</button>
         <button class="nav-btn" style="color: red;" onclick="clearCanvas()">Wipe</button>
         <button class="nav-btn" style="color: #000; font-weight: bold;" onclick="toggleSidebar()">Codes ☰</button>
     </div>
 </div>
 
-<!-- FLOATING SEARCH BAR OVERLAY WITH BOOLEAN NOTATION INDICATOR -->
-<div id="searchOverlay" class="search-overlay-bar">
-    <div class="search-input-wrapper">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search (use quotes for exact match)..." oninput="executeGlobalDualSearch(this.value)">
-        <button class="search-close-icon" onclick="toggleSearchBar(false)">✕</button>
-    </div>
-    <div id="searchModeIndicator" class="search-mode-indicator">Mode: Ready</div>
-</div>
-
-<!-- INTERACTIVE MODAL CODE TEXT HIGHLIGHTER LIGHTBOX -->
+<!-- INTERACTIVE MODAL CODE PREVIEW OVERLAY -->
 <div id="previewModal" class="preview-modal" onclick="closePreviewModal()">
     <div class="preview-modal-content" onclick="event.stopPropagation()">
         <div class="preview-modal-header">
             <span id="modalCodeKey" class="preview-modal-title">CODE</span>
-            <button class="search-close-icon" style="color:#000; font-size:16px;" onclick="closePreviewModal()">✕</button>
+            <button class="search-close-icon" style="color:#000; font-weight: bold;" onclick="closePreviewModal()">✕</button>
         </div>
         <div id="modalCodeBody" class="preview-modal-body"></div>
     </div>
@@ -467,7 +454,6 @@
     const activeMacroKey = document.getElementById('activeMacroKey');
     const formatterBar = document.getElementById('formatterBar');
     const docTitle = document.getElementById('docTitle');
-    const searchOverlay = document.getElementById('searchOverlay');
     const searchInput = document.getElementById('searchInput');
     const searchModeIndicator = document.getElementById('searchModeIndicator');
     const previewModal = document.getElementById('previewModal');
@@ -507,44 +493,16 @@
         } catch (err) { console.warn("External asset fetch skipped or unavailable."); }
     }
 
-    function toggleSearchBar(forceState = null) {
-        const targetState = forceState !== null ? forceState : (searchOverlay.style.display !== 'flex');
-        if (targetState) {
-            if (!isSearchActive) cleanSnapshotMarkup = editor.innerHTML;
-            searchOverlay.style.display = 'flex';
-            searchInput.focus();
-            isSearchActive = true;
-            if (!sidebar.classList.contains('open')) toggleSidebar();
-        } else {
-            searchOverlay.style.display = 'none';
-            searchInput.value = "";
-            searchModeIndicator.innerText = "Mode: Ready";
-            if (isSearchActive) {
-                editor.innerHTML = cleanSnapshotMarkup;
-                isSearchActive = false;
-                saveState();
-                renderSidebar();
-            }
-        }
-    }
-
-    // PARSING CONTROLLER FOR INTERACTIVE PARALLEL HIGHLIGHT ENGINE
     function parseSearchKeywords(rawInput) {
         let text = rawInput.trim();
         if (!text) return { tokens: [], mode: 'none' };
-
-        // Exact string sequence capture paths
         if (text.startsWith('"') && text.endsWith('"') && text.length > 2) {
             return { tokens: [text.slice(1, -1)], mode: 'EXACT' };
         }
-
-        // Logical OR notation arrays
         if (text.includes(',') || text.includes('|')) {
             let terms = text.split(/[,|]+/).map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
             return { tokens: terms, mode: 'OR' };
         }
-
-        // Logical AND configuration tokens
         let words = text.split(/\s+/).map(w => w.trim().toLowerCase()).filter(w => w.length > 0);
         return { tokens: words, mode: 'AND' };
     }
@@ -552,23 +510,32 @@
     function executeGlobalDualSearch(value) {
         const parsed = parseSearchKeywords(value);
         if (parsed.mode === 'none') {
-            searchModeIndicator.innerText = "Mode: Ready";
-            editor.innerHTML = cleanSnapshotMarkup;
+            searchModeIndicator.style.display = "none";
+            if (isSearchActive) {
+                editor.innerHTML = cleanSnapshotMarkup;
+                isSearchActive = false;
+            }
             renderSidebar();
             return;
         }
 
-        searchModeIndicator.innerText = `Mode: ${parsed.mode} MATCH`;
+        if (!isSearchActive) {
+            cleanSnapshotMarkup = editor.innerHTML;
+            isSearchActive = true;
+        }
 
-        // Step 1: Text Canvas Mutation Layer Highlights
+        searchModeIndicator.innerText = `Mode: ${parsed.mode} MATCH`;
+        searchModeIndicator.style.display = "block";
+
+        // Step 1: Text Canvas Mutator Highlights
         editor.innerHTML = cleanSnapshotMarkup;
         highlightNodeCollection(editor, parsed);
-        
         const firstCanvasMatch = editor.querySelector('mark.search-match');
         if (firstCanvasMatch) firstCanvasMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        // Step 2: Adaptive Registry Filter Reductions
+        // Step 2: Sidebar Macro Library Scan Reductions
         renderSidebar(parsed);
+        if (!sidebar.classList.contains('open')) toggleSidebar();
     }
 
     function highlightNodeCollection(rootElement, queryConfig) {
@@ -579,8 +546,6 @@
             if (node.nodeType === Node.TEXT_NODE) {
                 let text = node.nodeValue;
                 let lowerText = text.toLowerCase();
-                
-                // Track matches to wrap sequentially
                 let matchesToProcess = [];
 
                 if (searchMode === 'EXACT') {
@@ -588,7 +553,6 @@
                     let idx = lowerText.indexOf(token.toLowerCase());
                     if (idx !== -1) matchesToProcess.push({ index: idx, len: token.length });
                 } else {
-                    // Collect matching indexes for multi-word configurations
                     queryTokens.forEach(token => {
                         let idx = 0;
                         while ((idx = lowerText.indexOf(token, idx)) !== -1) {
@@ -598,10 +562,7 @@
                     });
                 }
 
-                // Sort matches back-to-front to avoid node offset alignment drifts during DOM mutations
                 matchesToProcess.sort((a, b) => b.index - a.index);
-
-                // Filter duplicates or overlapping ranges safely
                 let lastIdx = Infinity;
                 matchesToProcess = matchesToProcess.filter(m => {
                     if (m.index + m.len <= lastIdx) {
@@ -611,13 +572,11 @@
                     return false;
                 });
 
-                // Wrap text indices inside custom mark tags
                 matchesToProcess.forEach(m => {
                     const matchChunk = text.substring(m.index, m.index + m.len);
                     const mark = document.createElement('mark');
                     mark.className = 'search-match';
                     mark.textContent = matchChunk;
-
                     const remainderNode = node.splitText(m.index);
                     remainderNode.nodeValue = remainderNode.nodeValue.substring(m.len);
                     node.parentNode.insertBefore(mark, remainderNode);
@@ -629,19 +588,14 @@
         walk(rootElement);
     }
 
-    // LIGHTBOX INTERACTION DISPATCH TRACKS
     function handleRegistryKeyAction(key) {
         if (isSearchActive && searchInput.value.trim().length > 0) {
-            // Display targeted text highlighting snapshot in modal dialog
             modalCodeKey.innerText = key;
             modalCodeBody.innerHTML = dictionary[key];
-            
             const currentQuery = parseSearchKeywords(searchInput.value);
             highlightNodeCollection(modalCodeBody, currentQuery);
-            
             previewModal.style.display = 'flex';
         } else {
-            // Direct insertion mode
             injectMacroFromRegistry(key);
         }
     }
@@ -654,7 +608,6 @@
         
         Object.keys(dictionary).sort().forEach(key => {
             let displayElement = true;
-
             if (activeSearchQuery) {
                 const searchMode = activeSearchQuery.mode;
                 const tokens = activeSearchQuery.tokens;
@@ -674,7 +627,6 @@
             if (displayElement) {
                 const div = document.createElement('div');
                 div.className = 'code-item';
-                const textPreview = dictionary[key].replace(/<[^>]*>/g, '');
                 div.innerHTML = `
                     <span class="code-key" title="Action: Highlight on search or inject directly" onclick="handleRegistryKeyAction('${escapeHtml(key)}')">${escapeHtml(key)}</span>
                     <span class="remove-btn" onclick="event.stopPropagation(); removeMacro('${key}')">×</span>
@@ -692,7 +644,15 @@
     docTitle.addEventListener('keyup', saveState);
 
     function injectMacroFromRegistry(key) {
-        if (isSearchActive) toggleSearchBar(false);
+        // Clear active search indicators to return workspace elements back to clean tracking status
+        if (isSearchActive) {
+            searchInput.value = "";
+            searchModeIndicator.style.display = "none";
+            editor.innerHTML = cleanSnapshotMarkup;
+            isSearchActive = false;
+            renderSidebar();
+        }
+
         if (!dictionary[key]) return;
         editor.focus();
         const selection = window.getSelection();
@@ -730,7 +690,14 @@
         if (window.innerWidth <= 768) toggleSidebar();
     }
 
-    function executeFormat(command, value = null) { if (isSearchActive) toggleSearchBar(false); document.execCommand(command, false, value); editor.focus(); setTimeout(updateFormatterPosition, 20); saveState(); }
+    function executeFormat(command, value = null) { 
+        if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); }
+        document.execCommand(command, false, value); 
+        editor.focus(); 
+        setTimeout(updateFormatterPosition, 20); 
+        saveState(); 
+    }
+    
     document.addEventListener('selectionchange', updateFormatterPosition);
     window.addEventListener('resize', updateFormatterPosition);
     editor.addEventListener('scroll', updateFormatterPosition);
@@ -750,13 +717,25 @@
         formatterBar.style.display = 'flex';
     }
 
-    function downloadAsPDF() { if (isSearchActive) toggleSearchBar(false); const titleText = docTitle.innerText.trim(); const originalDocumentTitle = document.title; document.title = titleText ? titleText : "NoteCiter_Document"; formatterBar.style.display = 'none'; if (sidebar.classList.contains('open')) toggleSidebar(); window.print(); document.title = originalDocumentTitle; }
+    function downloadAsPDF() { if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); } const titleText = docTitle.innerText.trim(); const originalDocumentTitle = document.title; document.title = titleText ? titleText : "NoteCiter_Document"; formatterBar.style.display = 'none'; if (sidebar.classList.contains('open')) toggleSidebar(); window.print(); document.title = originalDocumentTitle; }
     function toggleSidebar() { sidebar.classList.toggle('open'); canvasContainer.classList.toggle('sidebar-open'); }
     function closeToast() { macroToast.style.display = 'none'; }
-    function clearCanvas() { if(confirm("Wipe entire notes canvas clean?")) { editor.innerHTML = ""; docTitle.innerHTML = ""; closeToast(); formatterBar.style.display = 'none'; lastSavedSelectionRange = null; if (isSearchActive) toggleSearchBar(false); saveState(); } }
+    
+    function clearCanvas() { 
+        if(confirm("Wipe entire notes canvas clean?")) { 
+            editor.innerHTML = ""; 
+            docTitle.innerHTML = ""; 
+            closeToast(); 
+            formatterBar.style.display = 'none'; 
+            lastSavedSelectionRange = null; 
+            if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; isSearchActive = false; }
+            saveState(); 
+            renderSidebar();
+        } 
+    }
 
     function handleKeyDown(e) {
-        if (isSearchActive) toggleSearchBar(false);
+        if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); }
         setTimeout(trackCaretPosition, 1);
         if (e.key === ' ' || e.key === 'Enter') {
             const selection = window.getSelection();
@@ -805,7 +784,7 @@
     document.addEventListener('click', (e) => { if (!customMenu.contains(e.target)) customMenu.style.display = 'none'; });
 
     function processSelectionConfig() {
-        if (isSearchActive) toggleSearchBar(false);
+        if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); }
         if (!selectedTextHTML || !rangeCached) return;
         const rawKey = prompt(`Enter shorthand keyword:`);
         if (!rawKey || !rawKey.trim()) return;
@@ -819,11 +798,28 @@
     }
 
     function removeMacro(key) { delete dictionary[key]; saveState(); renderSidebar(); }
-    function saveState() { if (isSearchActive) return; localStorage.setItem('notebook_rich_canvas_macros', JSON.stringify(dictionary)); localStorage.setItem('noteciter_saved_title', docTitle.innerHTML); localStorage.setItem('noteciter_saved_content', editor.innerHTML); }
+    
+    function saveState() { 
+        if (isSearchActive) return; 
+        localStorage.setItem('notebook_rich_canvas_macros', JSON.stringify(dictionary)); 
+        localStorage.setItem('noteciter_saved_title', docTitle.innerHTML); 
+        localStorage.setItem('noteciter_saved_content', editor.innerHTML); 
+    }
 
     function exportJSON() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dictionary, null, 2)), downloadAnchor = document.createElement('a'); downloadAnchor.setAttribute("href", dataStr); downloadAnchor.setAttribute("download", "noteciter_dictionary.json"); document.body.appendChild(downloadAnchor); downloadAnchor.click(); downloadAnchor.remove(); }
     function importJSON(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const imported = JSON.parse(e.target.result); if (typeof imported === 'object' && imported !== null) { dictionary = { ...dictionary, ...imported }; saveState(); renderSidebar(); } } catch (err) { alert("Incorrect data format."); } }; reader.readAsText(file); }
-    function clearAll() { const totalCodesCount = Object.keys(dictionary).length; if (totalCodesCount > 0) { const confirmBackupBeforeReset = confirm("Purge dictionary codes registry completely?\n\nClick [OK] to download a local backup configuration file first, or [Cancel] to wipe database immediately."); if (confirmBackupBeforeReset) exportJSON(); } dictionary = {}; saveState(); renderSidebar(); }
+    
+    function clearAll() { 
+        const totalCodesCount = Object.keys(dictionary).length; 
+        if (totalCodesCount > 0) { 
+            const confirmBackupBeforeReset = confirm("Purge dictionary codes registry completely?\n\nClick [OK] to download a local backup configuration file first, or [Cancel] to wipe database immediately."); 
+            if (confirmBackupBeforeReset) exportJSON(); 
+        } 
+        dictionary = {}; 
+        saveState(); 
+        renderSidebar(); 
+    }
+    
     function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
     initializeWorkspaceState();
