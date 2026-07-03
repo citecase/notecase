@@ -18,11 +18,8 @@
             --inverse-accent: #252525;
             --mark-bg: #ffeb3b;
             --mark-text: #000000;
-            --token-bg: #f0f0f0;
-            --token-border: #ccc;
         }
 
-        /* DARK THEME PROPERTY MAP OVERRIDES */
         body.dark-theme {
             --bg-color: #121212;
             --text-color: #e0e0e0;
@@ -36,8 +33,6 @@
             --inverse-accent: #f5f5f5;
             --mark-bg: #ffea00;
             --mark-text: #000000;
-            --token-bg: #2d2d2d;
-            --token-border: #444;
         }
 
         body {
@@ -53,7 +48,6 @@
             transition: background-color 0.2s ease, color 0.2s ease;
         }
 
-        /* Top Navbar */
         .top-navbar {
             position: fixed;
             top: 0;
@@ -167,7 +161,6 @@
             padding: 0 1px;
         }
 
-        /* Permanent Static Google Docs Style Toolbar */
         .gdocs-toolbar-container {
             position: fixed;
             top: 55px;
@@ -238,7 +231,6 @@
             margin: 0 6px;
         }
 
-        /* Toolbar Visibility Controller Button */
         .toolbar-toggle-trigger {
             position: fixed;
             top: 55px;
@@ -261,7 +253,7 @@
         }
         .toolbar-toggle-trigger:hover { opacity: 1; }
 
-        /* Workspace Viewport Padding Adjustments */
+        /* Workspace Viewport Dynamic Push Padding Configurations */
         .canvas-container {
             flex-grow: 1;
             display: flex;
@@ -293,30 +285,7 @@
             word-wrap: break-word;
         }
 
-        /* CLICKABLE ON-CANVAS MACRO TOKEN STYLING */
-        .macro-token {
-            display: inline-block;
-            background-color: var(--token-bg);
-            border: 1px solid var(--token-border);
-            padding: 2px 8px;
-            margin: 0 2px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            user-select: none;
-            transition: opacity 0.1s ease, background-color 0.2s ease;
-        }
-        .macro-token:hover {
-            opacity: 0.85;
-        }
-        .macro-token.collapsed::after {
-            content: " 📄 [Click to expand]";
-            font-size: 11px;
-            opacity: 0.6;
-            font-weight: normal;
-        }
-
-        /* Modals and Overlays */
+        /* Styling the popup dialogs and overlays */
         .preview-modal {
             position: fixed;
             top: 0;
@@ -441,7 +410,6 @@
             font-weight: bold;
         }
 
-        /* Global Macro Toast */
         .global-macro-toast {
             position: fixed;
             top: 65px;
@@ -482,7 +450,6 @@
         .toast-btn-secondary { background: transparent; color: var(--inverse-text); border: 1px solid var(--border-color); }
         .toast-close-btn { background: transparent; border: none; color: #666666; font-size: 14px; cursor: pointer; padding: 0 2px; }
 
-        /* Sidebar Drawer */
         .drawer-sidebar {
             position: fixed;
             top: 0;
@@ -515,7 +482,6 @@
         .code-key:active { transform: scale(0.95); }
         .remove-btn { color: #aa0000; cursor: pointer; font-weight: bold; font-size: 16px; padding: 4px 8px; }
 
-        /* Custom Context Menu */
         .context-menu { position: absolute; display: none; background: #111111; color: #ffffff; z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid #222222; padding: 4px 0; min-width: 150px; }
         body.dark-theme .context-menu { background: #222222; border-color: #333333; }
         .context-menu-item { padding: 10px 16px; font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.1s; }
@@ -603,6 +569,21 @@
     </div>
 </div>
 
+<!-- Custom Dialog Modal (Replaces native alert/confirm to adhere to security safety parameters) -->
+<div id="customDialogModal" class="preview-modal" onclick="closeCustomDialog()">
+    <div class="preview-modal-content" onclick="event.stopPropagation()">
+        <div class="preview-modal-header">
+            <span id="customDialogTitle" class="preview-modal-title">Notification</span>
+            <button class="search-close-icon" style="color:#888; font-weight: bold;" onclick="closeCustomDialog()">✕</button>
+        </div>
+        <div id="customDialogBody" class="preview-modal-body" style="margin-bottom: 16px;"></div>
+        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+            <button id="customDialogCancelBtn" class="choice-btn" style="max-width: 100px;" onclick="closeCustomDialog()">Cancel</button>
+            <button id="customDialogConfirmBtn" class="choice-btn active" style="max-width: 100px;">OK</button>
+        </div>
+    </div>
+</div>
+
 <div id="macroToast" class="global-macro-toast">
     <div class="toast-label-group">
         <span class="toast-info-text">Active</span>
@@ -640,18 +621,7 @@
 
 <script>
     const JSON_URL = './library.json';
-    
-    // Fallback default macros to ensure the sidebar loads with active examples instantly
-    const fallbackPresets = {
-        "Adam": "Adam ate an apple and got pushed from heaven.",
-        "eve": "Eve is Adam's partner in paradise.",
-        "instructions": "Type shorthand codes like 'Adam' or 'eve' and press Space or Enter to see them turn into clickable tokens! Right-click selected canvas text to save it."
-    };
-    
-    let dictionary = JSON.parse(localStorage.getItem('notebook_rich_canvas_macros'));
-    if (!dictionary || Object.keys(dictionary).length === 0) {
-        dictionary = fallbackPresets;
-    }
+    let dictionary = JSON.parse(localStorage.getItem('notebook_rich_canvas_macros')) || {};
 
     const editor = document.getElementById('editor');
     const sidebar = document.getElementById('sidebar');
@@ -675,12 +645,48 @@
     const actionModalList = document.getElementById('actionModalList');
     const modifyAlignmentContainer = document.getElementById('modifyAlignmentContainer');
 
+    const customDialogModal = document.getElementById('customDialogModal');
+    const customDialogTitle = document.getElementById('customDialogTitle');
+    const customDialogBody = document.getElementById('customDialogBody');
+    const customDialogCancelBtn = document.getElementById('customDialogCancelBtn');
+    const customDialogConfirmBtn = document.getElementById('customDialogConfirmBtn');
+
     let rangeCached = null, selectedTextHTML = "", lastExpandedKey = "", lastExpandedValueAppended = "", lastSavedSelectionRange = null;
     let cleanSnapshotMarkup = "", isSearchActive = false;
     let isToolbarHidden = false;
     
     let activeWorkflowType = ""; 
     let modificationPosition = "before"; 
+
+    // Custom alerts instead of native blocks to strictly meet safety rules
+    function showCustomAlert(message, title = "Notification") {
+        customDialogTitle.innerText = title;
+        customDialogBody.innerText = message;
+        customDialogCancelBtn.style.display = 'none';
+        customDialogConfirmBtn.innerText = "OK";
+        customDialogConfirmBtn.onclick = closeCustomDialog;
+        customDialogModal.style.display = 'flex';
+    }
+
+    function showCustomConfirm(message, title, onConfirm, onCancel = null) {
+        customDialogTitle.innerText = title;
+        customDialogBody.innerText = message;
+        customDialogCancelBtn.style.display = 'block';
+        customDialogConfirmBtn.innerText = "OK";
+        customDialogConfirmBtn.onclick = () => {
+            closeCustomDialog();
+            if (onConfirm) onConfirm();
+        };
+        customDialogCancelBtn.onclick = () => {
+            closeCustomDialog();
+            if (onCancel) onCancel();
+        };
+        customDialogModal.style.display = 'flex';
+    }
+
+    function closeCustomDialog() {
+        customDialogModal.style.display = 'none';
+    }
 
     function initializeWorkspaceState() {
         editor.innerHTML = "";
@@ -922,19 +928,6 @@
 
     document.addEventListener('click', (e) => { 
         if (!customMenu.contains(e.target)) customMenu.style.display = 'none'; 
-        
-        // INTERACTIVE ON-CLICK TOKEN TOGGLE PIPELINES
-        if (e.target.classList.contains('macro-token')) {
-            const token = e.target;
-            const macroKey = token.getAttribute('data-key');
-            if (token.classList.contains('collapsed')) {
-                token.innerHTML = dictionary[macroKey];
-                token.classList.remove('collapsed');
-            } else {
-                token.innerHTML = macroKey;
-                token.classList.add('collapsed');
-            }
-        }
     });
 
     function renderSidebar(activeSearchQuery = null) {
@@ -970,6 +963,7 @@
     editor.addEventListener('keyup', trackCaretPosition);
     editor.addEventListener('touchend', () => setTimeout(trackCaretPosition, 50));
 
+    // REVERTED INJECT ACTION: Instantly expands into RAW native elements directly at document caret, without any interactive span wrappers
     function injectMacroFromRegistry(key) {
         if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); }
         if (!dictionary[key]) return;
@@ -979,13 +973,12 @@
         if (lastSavedSelectionRange && editor.contains(lastSavedSelectionRange.startContainer)) { targetRange = lastSavedSelectionRange.cloneRange(); } 
         else { targetRange = document.createRange(); targetRange.selectNodeContents(editor); targetRange.collapse(false); }
         
-        const tokenContainer = document.createElement('span');
-        tokenContainer.className = 'macro-token';
-        tokenContainer.setAttribute('contenteditable', 'false');
-        tokenContainer.setAttribute('data-key', key);
-        tokenContainer.innerHTML = dictionary[key];
-
-        targetRange.insertNode(tokenContainer);
+        const fragment = document.createDocumentFragment(), tempEl = document.createElement("div");
+        tempEl.innerHTML = dictionary[key];
+        lastExpandedValueAppended = dictionary[key]; lastExpandedKey = key;
+        while (tempEl.firstChild) fragment.appendChild(tempEl.firstChild);
+        
+        targetRange.insertNode(fragment);
         const tailSpacer = document.createTextNode('\u00A0');
         targetRange.collapse(false); targetRange.insertNode(tailSpacer);
         targetRange.setStartAfter(tailSpacer); targetRange.collapse(true);
@@ -1003,8 +996,18 @@
     function downloadAsPDF() { if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); } const originalDocumentTitle = document.title; document.title = "NoteCiter_Document"; if (sidebar.classList.contains('open')) toggleSidebar(); window.print(); document.title = originalDocumentTitle; }
     function toggleSidebar() { sidebar.classList.toggle('open'); canvasContainer.classList.toggle('sidebar-open'); }
     function closeToast() { macroToast.style.display = 'none'; }
-    function clearCanvas() { if(confirm("Wipe entire notes canvas clean?")) { editor.innerHTML = ""; closeToast(); if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; isSearchActive = false; } saveState(); renderSidebar(); } }
+    
+    function clearCanvas() { 
+        showCustomConfirm("Wipe entire notes canvas clean?", "Clear Canvas", () => {
+            editor.innerHTML = ""; 
+            closeToast(); 
+            if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; isSearchActive = false; } 
+            saveState(); 
+            renderSidebar();
+        });
+    }
 
+    // REVERTED KEYDOWN TRIGGER: Intercepts Space/Enter to replace standard typing text triggers with clean, RAW, native HTML expansions
     function handleKeyDown(e) {
         if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); }
         setTimeout(trackCaretPosition, 1);
@@ -1019,13 +1022,11 @@
                     e.preventDefault(); const wordStartOffset = cursorOffset - lastWord.length;
                     textNode.deleteData(wordStartOffset, lastWord.length); range.setStart(textNode, wordStartOffset); range.collapse(true);
                     
-                    const tokenContainer = document.createElement('span');
-                    tokenContainer.className = 'macro-token';
-                    tokenContainer.setAttribute('contenteditable', 'false');
-                    tokenContainer.setAttribute('data-key', lastWord);
-                    tokenContainer.innerHTML = dictionary[lastWord];
+                    const fragment = document.createDocumentFragment(), tempEl = document.createElement("div");
+                    tempEl.innerHTML = dictionary[lastWord]; lastExpandedValueAppended = dictionary[lastWord]; lastExpandedKey = lastWord;
+                    while (tempEl.firstChild) fragment.appendChild(tempEl.firstChild);
                     
-                    range.insertNode(tokenContainer);
+                    range.insertNode(fragment);
                     const tailSpacer = document.createTextNode(e.key === ' ' ? '\u00A0' : '\n\n');
                     range.collapse(false); range.insertNode(tailSpacer); range.setStartAfter(tailSpacer); range.collapse(true);
                     selection.removeAllRanges(); selection.addRange(range); activeMacroKey.innerText = lastWord; macroToast.style.display = 'flex';
@@ -1035,7 +1036,7 @@
         }
     }
 
-    function triggerCollapseHistory() { if (!lastExpandedKey || !lastExpandedValueAppended) return; const currentHTML = editor.innerHTML; if (currentHTML.includes(lastExpandedValueAppended)) { editor.innerHTML = currentHTML.replace(lastExpandedValueAppended, lastExpandedKey); closeToast(); lastSavedSelectionRange = null; saveState(); } else { alert("The expanded text has been modified."); closeToast(); } }
+    function triggerCollapseHistory() { if (!lastExpandedKey || !lastExpandedValueAppended) return; const currentHTML = editor.innerHTML; if (currentHTML.includes(lastExpandedValueAppended)) { editor.innerHTML = currentHTML.replace(lastExpandedValueAppended, lastExpandedKey); closeToast(); lastSavedSelectionRange = null; saveState(); } else { showCustomAlert("The expanded text has been modified.", "Undo Action"); closeToast(); } }
     function copyActiveMacroText() { if (!lastExpandedKey || !dictionary[lastExpandedKey]) return; const htmlContent = dictionary[lastExpandedKey], tempDiv = document.createElement('div'); tempDiv.innerHTML = htmlContent; const plainText = tempDiv.innerText || tempDiv.textContent; const blobHtml = new Blob([htmlContent], { type: 'text/html' }), blobText = new Blob([plainText], { type: 'text/plain' }); const data = [new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })]; navigator.clipboard.write(data).then(() => { const oldText = activeMacroKey.innerText; activeMacroKey.innerText = "COPIED!"; setTimeout(() => { activeMacroKey.innerText = oldText; }, 1000); }); }
 
     editor.addEventListener('contextmenu', function(e) {
@@ -1066,11 +1067,6 @@
         localStorage.setItem('notebook_rich_canvas_macros', JSON.stringify(dictionary)); 
         localStorage.setItem('noteciter_saved_content', editor.innerHTML); 
     }
-
-    function exportJSON() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dictionary, null, 2)), downloadAnchor = document.createElement('a'); downloadAnchor.setAttribute("href", dataStr); downloadAnchor.setAttribute("download", "noteciter_dictionary.json"); document.body.appendChild(downloadAnchor); downloadAnchor.click(); downloadAnchor.remove(); }
-    function importJSON(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const imported = JSON.parse(e.target.result); if (typeof imported === 'object' && imported !== null) { dictionary = { ...dictionary, ...imported }; saveState(); renderSidebar(); } } catch (err) { alert("Incorrect data format."); } }; reader.readAsText(file); }
-    function clearAll() { const totalCodesCount = Object.keys(dictionary).length; if (totalCodesCount > 0) { const confirmBackupBeforeReset = confirm("Purge dictionary codes registry completely?\n\nClick [OK] to download a local backup configuration file first, or [Cancel] to wipe database immediately."); if (confirmBackupBeforeReset) exportJSON(); } dictionary = {}; saveState(); renderSidebar(); }
-    function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
     function runGlobalInitialization() {
         initializeWorkspaceState();
