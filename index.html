@@ -215,7 +215,7 @@
             padding: 0 1px;
         }
 
-        /* Floating Style Toolbar Dropdown */
+        /* Unified Floating Preferences Dashboard Menu Dropdown Panel */
         .floating-style-toolbar {
             position: fixed;
             top: 75px;
@@ -224,12 +224,12 @@
             border: 1px solid var(--border-color);
             border-top: none;
             border-radius: 0 0 8px 8px;
-            padding: 10px 14px;
+            padding: 12px 16px;
             display: none;
             gap: 12px;
             align-items: center;
             z-index: 99;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
             box-sizing: border-box;
         }
         
@@ -283,7 +283,7 @@
             word-wrap: break-word;
         }
 
-        /* Sticky Compact Action Footer Panel */
+        /* Sticky Action Footer Layout - Stabilized to ensure display on Mobile */
         .workspace-action-footer {
             position: fixed;
             bottom: 0;
@@ -295,8 +295,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            padding: 0 16px;
+            gap: 8px;
+            padding: 0 12px;
             z-index: 100;
             box-sizing: border-box;
         }
@@ -305,8 +305,8 @@
             background: var(--inverse-bg);
             color: var(--inverse-text);
             border: 1px solid var(--inverse-border);
-            padding: 8px 18px;
-            font-size: 11px;
+            padding: 8px 14px;
+            font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -315,7 +315,8 @@
             transition: all 0.15s ease;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
+            white-space: nowrap;
         }
         .footer-action-btn:hover {
             opacity: 0.9;
@@ -579,32 +580,35 @@
         }
         .centered-menu-close:hover { color: #ffffff; }
 
+        /* Unified Symmetrical Media Break Overrides */
         @media (max-width: 768px) {
-            .top-navbar { grid-template-columns: 1fr; gap: 8px; height: auto; padding: 10px 16px; }
-            .brand-config-group { justify-self: center; }
-            .search-input { width: 100% !important; }
-            .nav-btn-group { justify-self: center; width: 100%; justify-content: center; }
-            .canvas-container { padding-top: 155px; padding-bottom: 130px; }
-            .floating-style-toolbar { top: 75px; left: 50%; transform: translateX(-50%); border-radius: 8px; border: 1px solid var(--border-color); }
+            .top-navbar { display: flex; flex-direction: column; justify-content: center; height: 95px; padding: 8px 16px; gap: 6px; }
+            .brand-config-group { position: absolute; left: 16px; top: 12px; }
+            .nav-btn-group { position: absolute; right: 16px; top: 12px; }
+            .header-search-container { width: 100%; margin-top: 4px; }
+            .search-input { width: 100% !important; max-width: 340px; }
+            .search-results-dropdown-modal { top: 62px; width: 100%; max-width: 340px; }
+            .canvas-container { padding-top: 120px; padding-bottom: 80px; }
+            .floating-style-toolbar { top: 95px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 340px; border-radius: 8px; border: 1px solid var(--border-color); justify-content: center; }
+            .workspace-action-footer { height: 55px; display: flex; flex-direction: row; justify-content: space-around; padding: 0 6px; gap: 4px; }
+            .footer-action-btn { padding: 8px 10px; font-size: 9px; flex: 1; justify-content: center; }
         }
     </style>
 </head>
 <body>
 
 <div class="top-navbar">
-    <!-- Configuration Panel Alignments -->
+    <!-- Config Trigger Elements Column 1 Alignment -->
     <div class="brand-config-group">
-        <button id="themeToggleBtn" class="nav-btn" style="border: 1px solid var(--border-color); padding: 4px 8px; font-size: 10px;" onclick="toggleWorkspaceThemeScheme()">Dark 🌙</button>
-        <button id="styleToggleBtn" class="nav-btn" style="border: 1px solid var(--border-color); padding: 4px 8px; font-size: 10px;" onclick="toggleStyleToolbarPane()">Aa ⚙️</button>
-        <button class="nav-btn" style="border: 1px solid var(--border-color); color: var(--primary-accent); padding: 4px 8px; font-size: 10px; font-weight: bold;" onclick="downloadAsPDF()">📄 PDF</button>
+        <button id="styleToggleBtn" class="nav-btn" style="border: 1px solid var(--border-color); padding: 4px 10px; font-size: 11px; font-weight: bold;" onclick="toggleStyleToolbarPane()">Aa ⚙️</button>
     </div>
     
-    <!-- Centralized Branding Label Stacked Above Global Search Menu Block -->
+    <!-- Centralized Symmetrical Branding and Search Component -->
     <div class="header-search-container">
         <div class="navbar-brand-label">NoteCiter</div>
         <input type="text" id="searchInput" class="search-input" placeholder="Search Notes & Registry..." oninput="executeGlobalDualSearch(this.value)">
         
-        <!-- Live Small Window Results Dropdown Box Overlays -->
+        <!-- Live Window Result Drops Window Overlays -->
         <div id="searchResultsDropdownModal" class="search-results-dropdown-modal"></div>
     </div>
     
@@ -614,7 +618,10 @@
     </div>
 </div>
 
+<!-- Unified Dashboard Prefs Control Center Drops Pane -->
 <div id="styleToolbar" class="floating-style-toolbar">
+    <button id="themeToggleBtn" class="style-size-btn" style="padding: 4px 10px; font-size: 12px;" onclick="toggleWorkspaceThemeScheme()">Dark Mode 🌙</button>
+    <div style="width: 1px; height: 16px; background: var(--border-color);"></div>
     <select id="fontFamilySelect" class="style-select" onchange="adjustCanvasFontFamily(this.value)">
         <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">Sans-Serif</option>
         <option value="Georgia, 'Times New Roman', Times, serif">Serif</option>
@@ -624,6 +631,8 @@
     <button class="style-size-btn" onclick="modifyCanvasFontSize(-1)">A-</button>
     <span id="fontSizeDisplay" style="font-size: 12px; font-weight: bold; min-width: 20px; text-align: center;">16px</span>
     <button class="style-size-btn" onclick="modifyCanvasFontSize(1)">A+</button>
+    <div style="width: 1px; height: 16px; background: var(--border-color);"></div>
+    <button class="style-size-btn" style="color: var(--primary-accent); font-weight: bold;" onclick="downloadAsPDF()">📄 PDF</button>
 </div>
 
 <div id="previewModal" class="preview-modal" onclick="closePreviewModal()">
@@ -659,7 +668,7 @@
     </div>
 </div>
 
-<!-- Sticky Action Footer Layout -->
+<!-- Symmetrical Persistent Action Footer Center -->
 <div class="workspace-action-footer">
     <button class="footer-action-btn" onclick="executeFooterSaveWorkflow()">💾 Save as Code</button>
     <button id="footerCopyBtn" class="footer-action-btn footer-action-btn-secondary" onclick="executeFooterEntireCanvasCopy()">📋 Copy Canvas</button>
@@ -751,7 +760,7 @@
         
         if (localStorage.getItem('noteciter_dark_theme_enabled') === 'true') {
             document.body.classList.add('dark-theme');
-            themeToggleBtn.innerText = "Light ☀️";
+            themeToggleBtn.innerText = "Light Mode ☀️";
         }
         
         const savedSize = localStorage.getItem('noteciter_font_size');
@@ -806,7 +815,7 @@
     function toggleWorkspaceThemeScheme() {
         const isCurrentlyDark = document.body.classList.toggle('dark-theme');
         localStorage.setItem('noteciter_dark_theme_enabled', isCurrentlyDark);
-        themeToggleBtn.innerText = isCurrentlyDark ? "Light ☀️" : "Dark 🌙";
+        themeToggleBtn.innerText = isCurrentlyDark ? "Light Mode ☀️" : "Dark Mode 🌙";
     }
 
     function toggleStyleToolbarPane() {
@@ -883,7 +892,6 @@
 
     function closeCenteredMenuOverlay() { centeredActionsMenu.style.display = 'none'; }
 
-    // UNIFIED SAVE PIPELINE - REMOVED BLANK GUARDRAIL
     function executeFooterSaveWorkflow() {
         const selection = window.getSelection();
         const selectedText = selection ? selection.toString().trim() : "";
@@ -896,8 +904,6 @@
             isFullCanvasSaveWorkflow = false;
         } else {
             const containerPayload = editor.innerHTML.trim();
-            
-            // Fixed: Maps cleanly into empty string block if canvas is clear instead of aborting execution
             selectedTextHTML = (containerPayload === "<br>" || containerPayload === "<div><br></div>") ? "" : containerPayload;
             rangeCached = null; 
             isFullCanvasSaveWorkflow = true; 
@@ -1213,6 +1219,9 @@
         if (styleToolbar.style.display === "flex" && !e.target.closest('#styleToolbar') && !e.target.closest('#styleToggleBtn')) {
             styleToolbar.style.display = "none";
         }
+        if (searchResultsDropdownModal.style.display === "flex" && !e.target.closest('.header-search-container')) {
+            searchResultsDropdownModal.style.display = "none";
+        }
     });
 
     function renderSidebar(activeSearchQuery = null) {
@@ -1270,7 +1279,7 @@
         saveState(); if (window.innerWidth <= 768) toggleSidebar();
     }
 
-    function downloadAsPDF() { if (isSearchActive) { searchInput.value = ""; searchResultsDropdownModal.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); } const originalDocumentTitle = document.title; document.title = "NoteCiter_Document"; if (sidebar.classList.contains('open')) toggleSidebar(); window.print(); document.title = originalDocumentTitle; }
+    function downloadAsPDF() { if (isSearchActive) { searchInput.value = ""; searchResultsDropdownModal.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); } const originalDocumentTitle = document.title; document.title = "NoteCiter_Document"; if (sidebar.classList.contains('open')) toggleSidebar(); window.print(); document.title = originalDocumentTitle; styleToolbar.style.display = "none"; }
     function toggleSidebar() { sidebar.classList.toggle('open'); }
     
     function clearCanvas() {
