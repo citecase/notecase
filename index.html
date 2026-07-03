@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NoteCiter Canvas</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --border-color: #e0e0e0;
+            --accent-color: #f9f9f9;
+            --primary-accent: #004ccb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 55px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            padding: 0 16px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .brand-title {
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #000;
+            user-select: none;
+            justify-self: start;
+        }
+
+        .header-search-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .search-input {
+            background: var(--accent-color);
+            border: 1px solid var(--border-color);
+            color: #000000;
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 20px;
+            outline: none;
+            width: 280px;
+            text-align: center;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .search-input:focus {
+            background: #ffffff;
+            border-color: #a0a0a0;
+            width: 340px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .search-mode-indicator {
+            position: absolute;
+            top: 34px;
+            font-size: 9px;
+            color: #888888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: none;
+            background: #ffffff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-btn-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            justify-self: end;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #555;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            border-radius: 4px;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .nav-btn:hover, .nav-btn:active {
+            color: #000;
+            background-color: var(--accent-color);
+        }
+
+        mark.search-match {
+            background-color: #ffeb3b !important;
+            color: #000000 !important;
+            border-radius: 2px;
+            padding: 0 1px;
+        }
+
+        /* PERMANENT STANDARD GOOGLE DOCS STYLE TOOLBAR PANEL */
+        .gdocs-toolbar-container {
+            position: fixed;
+            top: 55px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 95;
+            box-sizing: border-box;
+            transition: transform 0.2s ease, opacity 0.15s ease;
+        }
+
+        .gdocs-toolbar-container.hidden {
+            transform: translateY(-40px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .gdocs-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 0 10px;
+            width: 100%;
+            max-width: 720px;
+        }
+
+        .gdocs-btn {
+            background: transparent;
+            border: none;
+            color: #333333;
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gdocs-btn:hover {
+            background-color: var(--accent-color);
+            color: #000000;
+        }
+
+        .gdocs-select {
+            background: var(--accent-color);
+            color: #333333;
+            border: 1px solid var(--border-color);
+            padding: 3px 6px;
+            font-size: 12px;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .gdocs-divider {
+            width: 1px;
+            height: 18px;
+            background: var(--border-color);
+            margin: 0 6px;
+        }
+
+        /* LOW-PROFILE INTERACTIVE VISIBILITY CONTROLLER BUTTON */
+        .toolbar-toggle-trigger {
+            position: fixed;
+            top: 55px;
+            right: 24px;
+            z-index: 96;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 3px 8px;
+            border-radius: 0 0 4px 4px;
+            cursor: pointer;
+            color: #666666;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: top 0.2s ease;
+        }
+
+        /* Workspace Viewport Dynamic Push Padding Configurations */
+        .canvas-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            padding-top: 135px; /* Fits top bar + doc bar combined spacing */
+            padding-bottom: 60px;
+            transition: padding-top 0.2s ease, padding-right 0.25s ease;
+            width: 100%;
+        }
+
+        .canvas-container.toolbar-collapsed {
+            padding-top: 90px;
+        }
+
+        /* Modals and Overlays */
+        .preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 400;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .preview-modal-content {
+            background: #ffffff;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.15);
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+        }
+
+        .preview-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .preview-modal-title {
+            font-family: monospace;
+            font-weight: bold;
+            background: #000;
+            color: #fff;
+            padding: 2px 6px;
+            font-size: 13px;
+            border-radius: 4px;
+        }
+
+        .preview-modal-body {
+            font-size: 15px;
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            color: #222;
+        }
+
+        .search-close-icon {
+            background: transparent;
+            border: none;
+            color: #888888;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .alignment-choice-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .choice-btn {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--accent-color);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .choice-btn.active {
+            background: var(--primary-accent);
+            color: #fff;
+            border-color: var(--primary-accent);
+        }
+
+        .action-modal-search {
+            width: 100%;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            outline: none;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+        }
+
+        .action-modal-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 4px;
+        }
+
+        .action-modal-item {
+            padding: 8px 10px;
+            font-family: monospace;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .action-modal-item:hover {
+            background: var(--accent-color);
+            font-weight: bold;
+        }
+
+        /* Global Macro Toast */
+        .global-macro-toast {
+            position: fixed;
+            top: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111111;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid #222222;
+            z-index: 200;
+            font-size: 12px;
+            width: calc(100% - 32px);
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+
+        .toast-label-group { display: flex; align-items: center; gap: 6px; border-right: 1px solid #333333; padding-right: 12px; flex-shrink: 0; }
+        .toast-info-text { color: #888888; font-size: 10px; text-transform: uppercase; }
+        .toast-label { font-family: SFMono-Regular, Consolas, monospace; font-weight: bold; color: #ffffff; background: #252525; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+        .toast-action-group { display: flex; align-items: center; gap: 6px; flex-grow: 1; justify-content: flex-end; }
+        .toast-btn { background: #ffffff; color: #000000; border: none; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 6px 10px; cursor: pointer; border-radius: 4px; }
+        .toast-btn-secondary { background: transparent; color: #ffffff; border: 1px solid #333333; }
+        .toast-close-btn { background: transparent; border: none; color: #666666; font-size: 14px; cursor: pointer; padding: 0 2px; }
+
+        .document-body {
+            width: 100%;
+            max-width: 720px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .editor-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            border: none;
+            outline: none;
+            width: 100%;
+            color: #000000;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .editor-canvas {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #222;
+            outline: none;
+            min-height: 500px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Sidebar Drawer */
+        .drawer-sidebar {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 300px;
+            height: 100vh;
+            background: var(--bg-color);
+            border-left: 1px solid var(--border-color);
+            box-sizing: border-box;
+            padding: 75px 16px 20px 16px;
+            display: flex;
+            flex-direction: column;
+            z-index: 90;
+            transition: right 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+        }
+
+        .drawer-sidebar.open { right: 0; }
+        .drawer-sidebar h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px; }
+
+        .sidebar-io-group { display: flex; flex-wrap: wrap; gap: 4px; background: var(--accent-color); padding: 6px; border-radius: 6px; margin-bottom: 12px; border: 1px solid var(--border-color); }
+        .sidebar-io-btn { flex: 1; min-width: 70px; background: #000; border: none; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; cursor: pointer; padding: 6px 4px; border-radius: 4px; text-align: center; }
+        .sidebar-io-btn:hover { background: #222; }
+
+        .code-list { flex-grow: 1; overflow-y: auto; margin-bottom: 16px; -webkit-overflow-scrolling: touch; }
+        .code-item { padding: 10px 6px; border-bottom: 1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center; }
+        
+        .code-key { font-family: monospace; font-weight: bold; background: #000; color: #fff; padding: 4px 8px; font-size: 12px; border-radius: 4px; cursor: pointer; touch-action: manipulation; }
+        .code-key:active { transform: scale(0.95); }
+        .remove-btn { color: #aa0000; cursor: pointer; font-weight: bold; font-size: 16px; padding: 4px 8px; }
+
+        /* Custom Context Menu */
+        .context-menu { position: absolute; display: none; background: #111111; color: #ffffff; z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid #222222; padding: 4px 0; min-width: 150px; }
+        .context-menu-item { padding: 10px 16px; font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.1s; }
+        .context-menu-item:hover { background: #252525; color: #ffffff; }
+
+        @media (max-width: 768px) {
+            .top-navbar { grid-template-columns: 1fr; gap: 8px; height: auto; padding: 10px 16px; }
+            .brand-title { justify-self: center; }
+            .search-input { width: 100% !important; }
+            .nav-btn-group { justify-self: center; width: 100%; justify-content: center; }
+            .canvas-container { padding-top: 175px; }
+            .canvas-container.toolbar-collapsed { padding-top: 140px; }
+            .gdocs-toolbar-container { top: 95px; }
+            .toolbar-toggle-trigger { top: 95px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-navbar">
+    <div class="brand-title">NoteCiter</div>
+    <div class="header-search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search Canvas & Library (Quotes = Exact)..." oninput="executeGlobalDualSearch(this.value)">
+        <div id="searchModeIndicator" class="search-mode-indicator">Mode: Ready</div>
+    </div>
+    <div class="nav-btn-group">
+        <button class="nav-btn" style="color: #004ccb; font-weight: bold;" onclick="downloadAsPDF()">PDF</button>
+        <button class="nav-btn" style="color: red;" onclick="clearCanvas()">Wipe</button>
+        <button class="nav-btn" style="color: #000; font-weight: bold;" onclick="toggleSidebar()">Codes ☰</button>
+    </div>
+</div>
+
+<!-- NEW STATIC GOOGLE DOCS STYLE WORKSPACE TOOLBAR BUTTON GROUP -->
+<div id="gdocsToolbar" class="gdocs-toolbar-container">
+    <div class="gdocs-toolbar">
+        <select class="gdocs-select" onchange="executeFormat('fontSize', this.value); this.selectedIndex=0;">
+            <option value="" selected disabled>Size</option>
+            <option value="3">S</option>
+            <option value="4">N</option>
+            <option value="5">M</option>
+            <option value="6">L</option>
+            <option value="7">XL</option>
+        </select>
+        <div class="gdocs-divider"></div>
+        <button class="gdocs-btn" onclick="executeFormat('bold')"><b>B</b></button>
+        <button class="gdocs-btn" onclick="executeFormat('italic')"><i>I</i></button>
+        <button class="gdocs-btn" onclick="executeFormat('underline')"><u>U</u></button>
+        <button class="gdocs-btn" onclick="executeFormat('strikeThrough')">~~</button>
+        <div class="gdocs-divider"></div>
+        <button class="gdocs-btn" onclick="executeFormat('justifyLeft')">⌸</button>
+        <button class="gdocs-btn" onclick="executeFormat('justifyCenter')">⌺</button>
+        <button class="gdocs-btn" onclick="executeFormat('justifyRight')">⌹</button>
+        <button class="gdocs-btn" onclick="executeFormat('justifyFull')">☰</button>
+    </div>
+</div>
+
+<!-- LOW-PROFILE TOOLBAR TOGGLE ACTION BUTTON -->
+<button id="toolbarToggleBtn" class="toolbar-toggle-trigger" onclick="toggleGDocsToolbarVisibility()">Hide Toolbar ˄</button>
+
+<div id="previewModal" class="preview-modal" onclick="closePreviewModal()">
+    <div class="preview-modal-content" onclick="event.stopPropagation()">
+        <div class="preview-modal-header">
+            <span id="modalCodeKey" class="preview-modal-title">CODE</span>
+            <button class="search-close-icon" style="color:#000; font-weight: bold;" onclick="closePreviewModal()">✕</button>
+        </div>
+        <div id="modalCodeBody" class="preview-modal-body"></div>
+    </div>
+</div>
+
+<div id="actionSelectionModal" class="preview-modal" onclick="closeActionModal()">
+    <div class="preview-modal-content" onclick="event.stopPropagation()">
+        <div class="preview-modal-header">
+            <span id="actionModalTitle" class="preview-modal-title">Select Target Code</span>
+            <button class="search-close-icon" style="color:#000; font-weight: bold;" onclick="closeActionModal()">✕</button>
+        </div>
+        
+        <div id="modifyAlignmentContainer" class="alignment-choice-box" style="display:none;">
+            <button id="choiceBefore" class="choice-btn active" onclick="setModifyPosition('before')">Add Before</button>
+            <button id="choiceAfter" class="choice-btn" onclick="setModifyPosition('after')">Add After</button>
+        </div>
+
+        <input type="text" id="actionModalSearch" class="action-modal-search" placeholder="Type to search codes library..." oninput="filterActionModalList(this.value)">
+        <div id="actionModalList" class="action-modal-list"></div>
+    </div>
+</div>
+
+<div id="macroToast" class="global-macro-toast">
+    <div class="toast-label-group">
+        <span class="toast-info-text">Active</span>
+        <span id="activeMacroKey" class="toast-label">code</span>
+    </div>
+    <div class="toast-action-group">
+        <button class="toast-btn" onclick="triggerCollapseHistory()">Undo</button>
+        <button class="toast-btn toast-btn-secondary" onclick="copyActiveMacroText()">Copy</button>
+    </div>
+    <button class="toast-close-btn" onclick="closeToast()">✕</button>
+</div>
+
+<div id="canvasContainer" class="canvas-container">
+    <div class="document-body">
+        <div id="docTitle" class="editor-title" contenteditable="true" placeholder="Untitled Document">Untitled Document</div>
+        <div id="editor" class="editor-canvas" contenteditable="true" onkeydown="handleKeyDown(event)"></div>
+    </div>
+</div>
+
+<div id="sidebar" class="drawer-sidebar">
+    <h2>Active Codes Registry</h2>
+    <div class="sidebar-io-group">
+        <button class="sidebar-io-btn" onclick="exportJSON()">Export</button>
+        <button class="sidebar-io-btn" onclick="document.getElementById('importFile').click()">Import</button>
+        <input type="file" id="importFile" style="display:none" accept=".json" onchange="importJSON(event)">
+    </div>
+    <div id="codeList" class="code-list"></div>
+    <button class="nav-btn" style="width:100%; text-align:center; color:red; font-size:11px;" onclick="clearAll()">Clear All Macros</button>
+</div>
+
+<div id="customMenu" class="context-menu">
+    <div class="context-menu-item" onclick="triggerMakeNewCodeWorkflow()">Make new code</div>
+    <div class="context-menu-item" onclick="triggerModifyCodeWorkflow()">Modify code</div>
+    <div class="context-menu-item" onclick="triggerReplaceCodeWorkflow()">Replace code</div>
+</div>
+
+<script>
+    const JSON_URL = './library.json';
+    let dictionary = JSON.parse(localStorage.getItem('notebook_rich_canvas_macros')) || {};
+
+    const editor = document.getElementById('editor');
+    const sidebar = document.getElementById('sidebar');
+    const canvasContainer = document.getElementById('canvasContainer');
+    const customMenu = document.getElementById('customMenu');
+    const macroToast = document.getElementById('macroToast');
+    const activeMacroKey = document.getElementById('activeMacroKey');
+    const docTitle = document.getElementById('docTitle');
+    const searchInput = document.getElementById('searchInput');
+    const searchModeIndicator = document.getElementById('searchModeIndicator');
+    const previewModal = document.getElementById('previewModal');
+    const modalCodeKey = document.getElementById('modalCodeKey');
+    const modalCodeBody = document.getElementById('modalCodeBody');
+    
+    const gdocsToolbar = document.getElementById('gdocsToolbar');
+    const toolbarToggleBtn = document.getElementById('toolbarToggleBtn');
+
+    const actionSelectionModal = document.getElementById('actionSelectionModal');
+    const actionModalTitle = document.getElementById('actionModalTitle');
+    const actionModalSearch = document.getElementById('actionModalSearch');
+    const actionModalList = document.getElementById('actionModalList');
+    const modifyAlignmentContainer = document.getElementById('modifyAlignmentContainer');
+
+    let rangeCached = null, selectedTextHTML = "", lastExpandedKey = "", lastExpandedValueAppended = "", lastSavedSelectionRange = null;
+    let cleanSnapshotMarkup = "", isSearchActive = false;
+    let isToolbarHidden = false;
+    
+    let activeWorkflowType = ""; 
+    let modificationPosition = "before"; 
+
+    function initializeWorkspaceState() {
+        docTitle.innerHTML = "Untitled Document";
+        editor.innerHTML = "";
+        localStorage.setItem('noteciter_visited', 'true');
+        cleanSnapshotMarkup = "";
+        saveState();
+    }
+
+    async function loadExternalLibrary() {
+        try {
+            const cacheBusterUrl = `${JSON_URL}?v=${new Date().getTime()}`;
+            const response = await fetch(cacheBusterUrl, { method: 'GET', headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache', 'Expires': '0' } });
+            if (!response.ok) throw new Error(`Status: ${response.status}`);
+            const remoteData = await response.json();
+            Object.keys(remoteData).forEach(key => {
+                if (!dictionary[key]) dictionary[key] = remoteData[key];
+            });
+            saveState();
+            renderSidebar();
+        } catch (err) { console.warn("External asset setup skipped."); }
+    }
+
+    // TOGGLE VISIBILITY FOR THE DOCS FORMATTER BAR
+    function toggleGDocsToolbarVisibility() {
+        isToolbarHidden = !isToolbarHidden;
+        gdocsToolbar.classList.toggle('hidden', isToolbarHidden);
+        canvasContainer.classList.toggle('toolbar-collapsed', isToolbarHidden);
+        
+        if (isToolbarHidden) {
+            toolbarToggleBtn.innerText = "Show Toolbar ˅";
+            toolbarToggleBtn.style.top = "55px";
+        } else {
+            toolbarToggleBtn.innerText = "Hide Toolbar ˄";
+            // Reposition toggle safely dynamically based on viewport media queries
+            if (window.innerWidth <= 768) {
+                toolbarToggleBtn.style.top = "95px";
+            } else {
+                toolbarToggleBtn.style.top = "55px";
+            }
+        }
+    }
+
+    function triggerMakeNewCodeWorkflow() {
+        customMenu.style.display = 'none';
+        if (!selectedTextHTML || !rangeCached) return;
+        const rawKey = prompt("Enter shorthand keyword for NEW code:");
+        if (!rawKey || !rawKey.trim()) return;
+        const codeKey = rawKey.trim();
+        
+        if (dictionary[codeKey]) {
+            dictionary[codeKey] = dictionary[codeKey] + "<br><br>" + selectedTextHTML;
+        } else {
+            dictionary[codeKey] = selectedTextHTML;
+        }
+        finalizeSelectionWipe(codeKey);
+    }
+
+    function triggerModifyCodeWorkflow() {
+        customMenu.style.display = 'none';
+        if (!selectedTextHTML || !rangeCached) return;
+        
+        activeWorkflowType = "MODIFY";
+        setModifyPosition('before'); 
+        modifyAlignmentContainer.style.display = "flex";
+        openActionSelectionModal("Modify Existing Code");
+    }
+
+    function triggerReplaceCodeWorkflow() {
+        customMenu.style.display = 'none';
+        if (!selectedTextHTML || !rangeCached) return;
+        
+        activeWorkflowType = "REPLACE";
+        modifyAlignmentContainer.style.display = "none";
+        openActionSelectionModal("Replace Existing Code");
+    }
+
+    function setModifyPosition(pos) {
+        modificationPosition = pos;
+        document.getElementById('choiceBefore').classList.toggle('active', pos === 'before');
+        document.getElementById('choiceAfter').classList.toggle('active', pos === 'after');
+    }
+
+    if (actionModalSearch) {
+        actionModalSearch.addEventListener('input', function() {
+            filterActionModalList(this.value);
+        });
+    }
+
+    function openActionSelectionModal(titleText) {
+        actionModalTitle.innerText = titleText;
+        actionModalSearch.value = "";
+        filterActionModalList("");
+        actionSelectionModal.style.display = 'flex';
+        actionModalSearch.focus();
+    }
+
+    function closeActionModal() { actionSelectionModal.style.display = 'none'; }
+
+    function filterActionModalList(filterTerm) {
+        actionModalList.innerHTML = "";
+        const query = filterTerm.trim().toLowerCase();
+        
+        Object.keys(dictionary).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })).forEach(key => {
+            const bodyPreview = dictionary[key].replace(/<[^>]*>/g, '').toLowerCase();
+            if (!query || key.toLowerCase().includes(query) || bodyPreview.includes(query)) {
+                const itemRow = document.createElement('div');
+                itemRow.className = "action-modal-item";
+                itemRow.innerText = `${key} - (${bodyPreview.substring(0, 40)}...)`;
+                itemRow.onclick = () => executeSelectedActionWorkflow(key);
+                actionModalList.appendChild(itemRow);
+            }
+        });
+    }
+
+    function executeSelectedActionWorkflow(targetKey) {
+        closeActionModal();
+        if (!dictionary[targetKey]) return;
+
+        if (activeWorkflowType === "MODIFY") {
+            if (modificationPosition === "before") {
+                dictionary[targetKey] = selectedTextHTML + "<br><br>" + dictionary[targetKey];
+            } else {
+                dictionary[targetKey] = dictionary[targetKey] + "<br><br>" + selectedTextHTML;
+            }
+        } else if (activeWorkflowType === "REPLACE") {
+            dictionary[targetKey] = selectedTextHTML;
+        }
+
+        finalizeSelectionWipe(targetKey);
+    }
+
+    function finalizeSelectionWipe(insertedKeyToken) {
+        saveState();
+        renderSidebar();
+        
+        rangeCached.deleteContents();
+        const shortcutToken = document.createTextNode(insertedKeyToken + '\u00A0');
+        rangeCached.insertNode(shortcutToken);
+        
+        rangeCached = null;
+        selectedTextHTML = "";
+        removeSelectionHighlights();
+        saveState();
+    }
+
+    function parseSearchKeywords(rawInput) {
+        let text = rawInput.trim();
+        if (!text) return { tokens: [], mode: 'none' };
+        if (text.startsWith('"') && text.endsWith('"') && text.length > 2) { return { tokens: [text.slice(1, -1)], mode: 'EXACT' }; }
+        if (text.includes(',') || text.includes('|')) {
+            let terms = text.split(/[,|]+/).map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
+            return { tokens: terms, mode: 'OR' };
+        }
+        let words = text.split(/\s+/).map(w => w.trim().toLowerCase()).filter(w => w.length > 0);
+        return { tokens: words, mode: 'AND' };
+    }
+
+    function executeGlobalDualSearch(value) {
+        const parsed = parseSearchKeywords(value);
+        if (parsed.mode === 'none') {
+            searchModeIndicator.style.display = "none";
+            if (isSearchActive) { editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; }
+            renderSidebar();
+            return;
+        }
+        if (!isSearchActive) { cleanSnapshotMarkup = editor.innerHTML; isSearchActive = true; }
+        searchModeIndicator.innerText = `Mode: ${parsed.mode} MATCH`;
+        searchModeIndicator.style.display = "block";
+        editor.innerHTML = cleanSnapshotMarkup;
+        highlightNodeCollection(editor, parsed);
+        const firstCanvasMatch = editor.querySelector('mark.search-match');
+        if (firstCanvasMatch) firstCanvasMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        renderSidebar(parsed);
+        if (!sidebar.classList.contains('open')) toggleSidebar();
+    }
+
+    function highlightNodeCollection(rootElement, queryConfig) {
+        const queryTokens = queryConfig.tokens;
+        const searchMode = queryConfig.mode;
+        const walk = (node) => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                let text = node.nodeValue;
+                let lowerText = text.toLowerCase();
+                let matchesToProcess = [];
+                if (searchMode === 'EXACT') {
+                    let token = queryTokens[0];
+                    let idx = lowerText.indexOf(token.toLowerCase());
+                    if (idx !== -1) matchesToProcess.push({ index: idx, len: token.length });
+                } else {
+                    queryTokens.forEach(token => {
+                        let idx = 0;
+                        while ((idx = lowerText.indexOf(token, idx)) !== -1) {
+                            matchesToProcess.push({ index: idx, len: token.length });
+                            idx += token.length;
+                        }
+                    });
+                }
+                matchesToProcess.sort((a, b) => b.index - a.index);
+                let lastIdx = Infinity;
+                matchesToProcess = matchesToProcess.filter(m => { if (m.index + m.len <= lastIdx) { lastIdx = m.index; return true; } return false; });
+                matchesToProcess.forEach(m => {
+                    const matchChunk = text.substring(m.index, m.index + m.len);
+                    const mark = document.createElement('mark');
+                    mark.className = 'search-match';
+                    mark.textContent = matchChunk;
+                    const remainderNode = node.splitText(m.index);
+                    remainderNode.nodeValue = remainderNode.nodeValue.substring(m.len);
+                    node.parentNode.insertBefore(mark, remainderNode);
+                });
+            } else if (node.nodeType === Node.ELEMENT_NODE && node.childNodes && !['MARK', 'SCRIPT', 'STYLE'].includes(node.tagName)) {
+                for (let i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
+            }
+        };
+        walk(rootElement);
+    }
+
+    function handleRegistryKeyAction(key) {
+        if (isSearchActive && searchInput.value.trim().length > 0) {
+            modalCodeKey.innerText = key;
+            modalCodeBody.innerHTML = dictionary[key];
+            const currentQuery = parseSearchKeywords(searchInput.value);
+            highlightNodeCollection(modalCodeBody, currentQuery);
+            previewModal.style.display = 'flex';
+        } else {
+            injectMacroFromRegistry(key);
+        }
+    }
+
+    function closePreviewModal() { previewModal.style.display = 'none'; }
+
+    function renderSidebar(activeSearchQuery = null) {
+        const container = document.getElementById('codeList');
+        container.innerHTML = '';
+        const sortedKeys = Object.keys(dictionary).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+        sortedKeys.forEach(key => {
+            let displayElement = true;
+            if (activeSearchQuery) {
+                const searchMode = activeSearchQuery.mode;
+                const tokens = activeSearchQuery.tokens;
+                const bodyTextLower = dictionary[key].replace(/<[^>]*>/g, '').toLowerCase();
+                const totalTargetString = key.toLowerCase() + " " + bodyTextLower;
+                if (searchMode === 'EXACT') displayElement = totalTargetString.includes(tokens[0].toLowerCase());
+                else if (searchMode === 'OR') displayElement = tokens.some(t => totalTargetString.includes(t));
+                else if (searchMode === 'AND') displayElement = tokens.every(t => totalTargetString.includes(t));
+            }
+            if (displayElement) {
+                const div = document.createElement('div');
+                div.className = 'code-item';
+                div.innerHTML = `
+                    <span class="code-key" onclick="handleRegistryKeyAction('${escapeHtml(key)}')">${escapeHtml(key)}</span>
+                    <span class="remove-btn" onclick="event.stopPropagation(); removeMacro('${key}')">×</span>
+                `;
+                container.appendChild(div);
+            }
+        });
+    }
+
+    function removeSelectionHighlights() { if (window.getSelection) window.getSelection().removeAllRanges(); }
+    function trackCaretPosition() { if (isSearchActive) return; const selection = window.getSelection(); if (selection.rangeCount > 0 && editor.contains(selection.anchorNode)) { lastSavedSelectionRange = selection.getRangeAt(0).cloneRange(); } saveState(); }
+    editor.addEventListener('click', trackCaretPosition);
+    editor.addEventListener('keyup', trackCaretPosition);
+    editor.addEventListener('touchend', () => setTimeout(trackCaretPosition, 50));
+    docTitle.addEventListener('keyup', saveState);
+
+    function injectMacroFromRegistry(key) {
+        if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); }
+        if (!dictionary[key]) return;
+        editor.focus();
+        const selection = window.getSelection();
+        let targetRange = null;
+        if (lastSavedSelectionRange && editor.contains(lastSavedSelectionRange.startContainer)) { targetRange = lastSavedSelectionRange.cloneRange(); } 
+        else { targetRange = document.createRange(); targetRange.selectNodeContents(editor); targetRange.collapse(false); }
+        const fragment = document.createDocumentFragment(), tempEl = document.createElement("div");
+        tempEl.innerHTML = dictionary[key];
+        lastExpandedValueAppended = dictionary[key]; lastExpandedKey = key;
+        while (tempEl.firstChild) fragment.appendChild(tempEl.firstChild);
+        targetRange.insertNode(fragment);
+        const tailSpacer = document.createTextNode('\u00A0');
+        targetRange.collapse(false); targetRange.insertNode(tailSpacer);
+        targetRange.setStartAfter(tailSpacer); targetRange.collapse(true);
+        selection.removeAllRanges(); selection.addRange(targetRange);
+        lastSavedSelectionRange = targetRange.cloneRange();
+        activeMacroKey.innerText = key; macroToast.style.display = 'flex';
+        saveState(); if (window.innerWidth <= 768) toggleSidebar();
+    }
+
+    function executeFormat(command, value = null) { 
+        if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); }
+        document.execCommand(command, false, value); editor.focus(); saveState(); 
+    }
+
+    function downloadAsPDF() { if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); } const titleText = docTitle.innerText.trim(); const originalDocumentTitle = document.title; document.title = titleText ? titleText : "NoteCiter_Document"; if (sidebar.classList.contains('open')) toggleSidebar(); window.print(); document.title = originalDocumentTitle; }
+    function toggleSidebar() { sidebar.classList.toggle('open'); canvasContainer.classList.toggle('sidebar-open'); }
+    function closeToast() { macroToast.style.display = 'none'; }
+    function clearCanvas() { if(confirm("Wipe entire notes canvas clean?")) { editor.innerHTML = ""; docTitle.innerHTML = "Untitled Document"; closeToast(); if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; isSearchActive = false; } saveState(); renderSidebar(); } }
+
+    function handleKeyDown(e) {
+        if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); }
+        setTimeout(trackCaretPosition, 1);
+        if (e.key === ' ' || e.key === 'Enter') {
+            const selection = window.getSelection(); if (!selection.rangeCount) return;
+            const range = selection.getRangeAt(0), textNode = range.startContainer;
+            if (textNode.nodeType === Node.TEXT_NODE) {
+                const textContent = textNode.textContent, cursorOffset = range.startOffset;
+                const beforeCursor = textContent.substring(0, cursorOffset);
+                const words = beforeCursor.split(/[\s\xA0]+/); const lastWord = words[words.length - 1];
+                if (dictionary[lastWord]) {
+                    e.preventDefault(); const wordStartOffset = cursorOffset - lastWord.length;
+                    textNode.deleteData(wordStartOffset, lastWord.length); range.setStart(textNode, wordStartOffset); range.collapse(true);
+                    const fragment = document.createDocumentFragment(), tempEl = document.createElement("div");
+                    tempEl.innerHTML = dictionary[lastWord]; lastExpandedValueAppended = dictionary[lastWord]; lastExpandedKey = lastWord;
+                    while (tempEl.firstChild) fragment.appendChild(tempEl.firstChild);
+                    range.insertNode(fragment);
+                    const tailSpacer = document.createTextNode(e.key === ' ' ? '\u00A0' : '\n\n');
+                    range.collapse(false); range.insertNode(tailSpacer); range.setStartAfter(tailSpacer); range.collapse(true);
+                    selection.removeAllRanges(); selection.addRange(range); activeMacroKey.innerText = lastWord; macroToast.style.display = 'flex';
+                    saveState(); lastSavedSelectionRange = range.cloneRange();
+                }
+            }
+        }
+    }
+
+    function triggerCollapseHistory() { if (!lastExpandedKey || !lastExpandedValueAppended) return; const currentHTML = editor.innerHTML; if (currentHTML.includes(lastExpandedValueAppended)) { editor.innerHTML = currentHTML.replace(lastExpandedValueAppended, lastExpandedKey); closeToast(); lastSavedSelectionRange = null; saveState(); } else { alert("The expanded text has been modified."); closeToast(); } }
+    function copyActiveMacroText() { if (!lastExpandedKey || !dictionary[lastExpandedKey]) return; const htmlContent = dictionary[lastExpandedKey], tempDiv = document.createElement('div'); tempDiv.innerHTML = htmlContent; const plainText = tempDiv.innerText || tempDiv.textContent; const blobHtml = new Blob([htmlContent], { type: 'text/html' }), blobText = new Blob([plainText], { type: 'text/plain' }); const data = [new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })]; navigator.clipboard.write(data).then(() => { const oldText = activeMacroKey.innerText; activeMacroKey.innerText = "COPIED!"; setTimeout(() => { activeMacroKey.innerText = oldText; }, 1000); }); }
+
+    editor.addEventListener('contextmenu', function(e) {
+        const selection = window.getSelection(), selectedText = selection.toString().trim();
+        if (selectedText.length > 0) { 
+            e.preventDefault(); 
+            rangeCached = selection.getRangeAt(0).cloneRange(); 
+            const container = document.createElement("div"); 
+            container.appendChild(rangeCached.cloneContents()); 
+            selectedTextHTML = container.innerHTML; 
+            customMenu.style.top = `${e.pageY}px`; 
+            customMenu.style.left = `${e.pageX}px`; 
+            customMenu.style.display = 'block'; 
+        }
+    });
+    document.addEventListener('click', (e) => { if (!customMenu.contains(e.target)) customMenu.style.display = 'none'; });
+
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    });
+
+    function removeMacro(key) { delete dictionary[key]; saveState(); renderSidebar(); }
+    
+    function saveState() { 
+        if (isSearchActive) return; 
+        localStorage.setItem('notebook_rich_canvas_macros', JSON.stringify(dictionary)); 
+        localStorage.setItem('noteciter_saved_title', docTitle.innerHTML); 
+        localStorage.setItem('noteciter_saved_content', editor.innerHTML); 
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeWorkspaceState();
+        renderSidebar();
+        loadExternalLibrary();
+        if (window.innerWidth <= 768) {
+            toolbarToggleBtn.style.top = "95px";
+        }
+    });
+</script>
+</body>
+</html>
