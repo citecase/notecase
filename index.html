@@ -45,6 +45,47 @@
             transition: background-color 0.2s ease, color 0.2s ease;
         }
 
+        /* Print Specific Media Styles - Isolates Heading + Canvas only */
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+            .top-navbar {
+                position: absolute !important;
+                border-bottom: none !important;
+                height: auto !important;
+                padding: 0 !important;
+                margin-bottom: 20px !important;
+                display: block !important;
+                text-align: center !important;
+            }
+            .navbar-brand-label {
+                font-size: 24px !important;
+                font-weight: bold !important;
+                color: #000000 !important;
+                display: block !important;
+            }
+            .brand-config-group, 
+            .nav-btn-group, 
+            .search-input, 
+            .search-results-dropdown-modal,
+            .workspace-action-footer,
+            .drawer-sidebar,
+            .floating-style-toolbar,
+            .preview-modal {
+                display: none !important;
+            }
+            .canvas-container {
+                padding-top: 40px !important;
+                padding-bottom: 0 !important;
+            }
+            .editor-canvas {
+                color: #000000 !important;
+                font-size: 14pt !important;
+            }
+        }
+
         /* Top Navbar Architecture */
         .top-navbar {
             position: fixed;
@@ -283,7 +324,7 @@
             word-wrap: break-word;
         }
 
-        /* Sticky Action Footer Layout - Stabilized to ensure display on Mobile */
+        /* Sticky Compact Action Footer Layout - Visual Shield configuration against soft keypads */
         .workspace-action-footer {
             position: fixed;
             bottom: 0;
@@ -299,6 +340,13 @@
             padding: 0 12px;
             z-index: 100;
             box-sizing: border-box;
+        }
+
+        /* Alternate non-fixed class used automatically when layout adjustments happen */
+        .workspace-action-footer.keyboard-adjusted {
+            position: relative !important;
+            margin-top: 20px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .footer-action-btn {
@@ -588,10 +636,10 @@
             .header-search-container { width: 100%; margin-top: 4px; }
             .search-input { width: 100% !important; max-width: 340px; }
             .search-results-dropdown-modal { top: 62px; width: 100%; max-width: 340px; }
-            .canvas-container { padding-top: 120px; padding-bottom: 80px; }
+            .canvas-container { padding-top: 120px; padding-bottom: 40px; }
             .floating-style-toolbar { top: 95px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 340px; border-radius: 8px; border: 1px solid var(--border-color); justify-content: center; }
-            .workspace-action-footer { height: 55px; display: flex; flex-direction: row; justify-content: space-around; padding: 0 6px; gap: 4px; }
-            .footer-action-btn { padding: 8px 10px; font-size: 9px; flex: 1; justify-content: center; }
+            .workspace-action-footer { display: flex; flex-direction: row; justify-content: space-around; padding: 0 4px; gap: 3px; }
+            .footer-action-btn { padding: 8px 4px; font-size: 8px; flex: 1; justify-content: center; letter-spacing: 0px; }
         }
     </style>
 </head>
@@ -618,7 +666,7 @@
     </div>
 </div>
 
-<!-- Unified Dashboard Prefs Control Center Drops Pane -->
+<!-- Unified Dashboard Preferences Drops Pane Dropdown -->
 <div id="styleToolbar" class="floating-style-toolbar">
     <button id="themeToggleBtn" class="style-size-btn" style="padding: 4px 10px; font-size: 12px;" onclick="toggleWorkspaceThemeScheme()">Dark Mode 🌙</button>
     <div style="width: 1px; height: 16px; background: var(--border-color);"></div>
@@ -631,8 +679,6 @@
     <button class="style-size-btn" onclick="modifyCanvasFontSize(-1)">A-</button>
     <span id="fontSizeDisplay" style="font-size: 12px; font-weight: bold; min-width: 20px; text-align: center;">16px</span>
     <button class="style-size-btn" onclick="modifyCanvasFontSize(1)">A+</button>
-    <div style="width: 1px; height: 16px; background: var(--border-color);"></div>
-    <button class="style-size-btn" style="color: var(--primary-accent); font-weight: bold;" onclick="downloadAsPDF()">📄 PDF</button>
 </div>
 
 <div id="previewModal" class="preview-modal" onclick="closePreviewModal()">
@@ -668,10 +714,11 @@
     </div>
 </div>
 
-<!-- Symmetrical Persistent Action Footer Center -->
-<div class="workspace-action-footer">
+<!-- Symmetrical Persistent Action Footer Center with Integrated PDF Trigger -->
+<div id="workspaceActionFooter" class="workspace-action-footer">
     <button class="footer-action-btn" onclick="executeFooterSaveWorkflow()">💾 Save as Code</button>
     <button id="footerCopyBtn" class="footer-action-btn footer-action-btn-secondary" onclick="executeFooterEntireCanvasCopy()">📋 Copy Canvas</button>
+    <button class="footer-action-btn footer-action-btn-secondary" style="color: var(--primary-accent); font-weight: bold;" onclick="downloadAsPDF()">📄 PDF</button>
     <button class="footer-action-btn footer-action-btn-secondary" style="color: red; border-color: rgba(255,0,0,0.15);" onclick="clearCanvas()">🧹 Wipe Canvas</button>
 </div>
 
@@ -726,6 +773,7 @@
     const previewModal = document.getElementById('previewModal');
     const modalCodeKey = document.getElementById('modalCodeKey');
     const modalCodeBody = document.getElementById('modalCodeBody');
+    const workspaceActionFooter = document.getElementById('workspaceActionFooter');
     
     const themeToggleBtn = document.getElementById('themeToggleBtn');
     const styleToolbar = document.getElementById('styleToolbar');
@@ -760,7 +808,7 @@
         
         if (localStorage.getItem('noteciter_dark_theme_enabled') === 'true') {
             document.body.classList.add('dark-theme');
-            themeToggleBtn.innerText = "Light Mode ☀️";
+            if (themeToggleBtn) themeToggleBtn.innerText = "Light Mode ☀️";
         }
         
         const savedSize = localStorage.getItem('noteciter_font_size');
@@ -778,8 +826,29 @@
         if (dictionary["scratch"]) {
             baseScratchpadContentRegistry = dictionary["scratch"];
         }
+
+        // KEYBOARD LAYOUT TRACKER ENGINE: Shakes off fixed docking when mobile canvas focuses
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', handleVisualViewportResizeLayout);
+        }
         
         saveState();
+    }
+
+    function handleVisualViewportResizeLayout() {
+        if (window.innerWidth <= 768) {
+            const currentViewportHeight = window.visualViewport.height;
+            const absoluteWindowHeight = window.innerHeight;
+            
+            // If the visible workspace space drops significantly, a software layout keypad is open
+            if (currentViewportHeight < absoluteWindowHeight * 0.85) {
+                workspaceActionFooter.classList.add('keyboard-adjusted');
+                workspaceActionFooter.style.top = (window.visualViewport.offsetTop + currentViewportHeight - 55) + "px";
+            } else {
+                workspaceActionFooter.classList.remove('keyboard-adjusted');
+                workspaceActionFooter.style.top = "auto";
+            }
+        }
     }
 
     // ACCUMULATIVE BACKGROUND BACKUP LEDGER
@@ -944,6 +1013,7 @@
         });
     }
 
+    // RESET SCRATCH METHOD (Ensures soft wipe content actions explicitly empty ledger memory strings too)
     function triggerMakeNewCodeWorkflow() {
         closeCenteredMenuOverlay();
         
@@ -1279,7 +1349,7 @@
         saveState(); if (window.innerWidth <= 768) toggleSidebar();
     }
 
-    function downloadAsPDF() { if (isSearchActive) { searchInput.value = ""; searchResultsDropdownModal.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); } const originalDocumentTitle = document.title; document.title = "NoteCiter_Document"; if (sidebar.classList.contains('open')) toggleSidebar(); window.print(); document.title = originalDocumentTitle; styleToolbar.style.display = "none"; }
+    function downloadAsPDF() { if (isSearchActive) { searchInput.value = ""; searchResultsDropdownModal.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); } const originalDocumentTitle = document.title; document.title = "NoteCiter_Document"; if (sidebar.classList.contains('open')) toggleSidebar(); window.print(); document.title = originalDocumentTitle; if(styleToolbar) styleToolbar.style.display = "none"; }
     function toggleSidebar() { sidebar.classList.toggle('open'); }
     
     function clearCanvas() {
@@ -1299,6 +1369,7 @@
             }
         }
         editor.innerHTML = "";
+        baseScratchpadContentRegistry = ""; // Fixed: Resets history ledger context string on hard wipe click
         saveState();
     }
 
