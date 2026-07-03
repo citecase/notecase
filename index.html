@@ -165,112 +165,14 @@
             padding: 0 1px;
         }
 
-        .gdocs-toolbar-container {
-            position: fixed;
-            top: 55px;
-            left: 0;
-            right: 0;
-            height: 40px;
-            background: var(--toolbar-bg);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 95;
-            box-sizing: border-box;
-            transition: transform 0.2s ease, opacity 0.15s ease;
-        }
-
-        .gdocs-toolbar-container.hidden {
-            transform: translateY(-40px);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .gdocs-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            padding: 0 10px;
-            width: 100%;
-            max-width: 720px;
-            overflow-x: auto; /* Swipable tool layout on mobile screens */
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .gdocs-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-color);
-            opacity: 0.8;
-            width: 28px;
-            height: 28px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .gdocs-btn:hover {
-            opacity: 1;
-            background-color: var(--accent-color);
-        }
-
-        .gdocs-select {
-            background: var(--accent-color);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 3px 6px;
-            font-size: 12px;
-            border-radius: 4px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .gdocs-divider {
-            width: 1px;
-            height: 18px;
-            background: var(--border-color);
-            margin: 0 6px;
-        }
-
-        .toolbar-toggle-trigger {
-            position: fixed;
-            top: 55px;
-            right: 24px;
-            z-index: 96;
-            background: var(--toolbar-bg);
-            border: 1px solid var(--border-color);
-            border-top: none;
-            font-size: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 3px 8px;
-            border-radius: 0 0 4px 4px;
-            cursor: pointer;
-            color: var(--text-color);
-            opacity: 0.7;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: top 0.2s ease, opacity 0.2s ease;
-        }
-        .toolbar-toggle-trigger:hover { opacity: 1; }
-
         .canvas-container {
             width: 100%;
             display: flex;
             justify-content: center;
-            padding-top: 120px;
+            padding-top: 75px; /* Perfect static gap for clean top header only */
             padding-bottom: 60px;
             transition: padding-top 0.2s ease, padding-right 0.25s ease;
             box-sizing: border-box;
-        }
-
-        .canvas-container.toolbar-collapsed {
-            padding-top: 75px;
         }
 
         .document-body {
@@ -496,10 +398,7 @@
             .brand-title-group { justify-self: center; }
             .search-input { width: 100% !important; }
             .nav-btn-group { justify-self: center; width: 100%; justify-content: center; }
-            .canvas-container { padding-top: 175px; }
-            .canvas-container.toolbar-collapsed { padding-top: 140px; }
-            .gdocs-toolbar-container { top: 95px; }
-            .toolbar-toggle-trigger { top: 95px; }
+            .canvas-container { padding-top: 145px; }
         }
     </style>
 </head>
@@ -520,31 +419,6 @@
         <button class="nav-btn" style="color: var(--text-color); font-weight: bold;" onclick="toggleSidebar()">Codes ☰</button>
     </div>
 </div>
-
-<div id="gdocsToolbar" class="gdocs-toolbar-container">
-    <div class="gdocs-toolbar">
-        <select class="gdocs-select" onchange="executeFormat('fontSize', this.value); this.selectedIndex=0;">
-            <option value="" selected disabled>Size</option>
-            <option value="3">S</option>
-            <option value="4">N</option>
-            <option value="5">M</option>
-            <option value="6">L</option>
-            <option value="7">XL</option>
-        </select>
-        <div class="gdocs-divider"></div>
-        <button class="gdocs-btn" onclick="executeFormat('bold')"><b>B</b></button>
-        <button class="gdocs-btn" onclick="executeFormat('italic')"><i>I</i></button>
-        <button class="gdocs-btn" onclick="executeFormat('underline')"><u>U</u></button>
-        <button class="gdocs-btn" onclick="executeFormat('strikeThrough')">~~</button>
-        <div class="gdocs-divider"></div>
-        <button class="gdocs-btn" onclick="executeFormat('justifyLeft')">⌸</button>
-        <button class="gdocs-btn" onclick="executeFormat('justifyCenter')">⌺</button>
-        <button class="gdocs-btn" onclick="executeFormat('justifyRight')">⌹</button>
-        <button class="gdocs-btn" onclick="executeFormat('justifyFull')">☰</button>
-    </div>
-</div>
-
-<button id="toolbarToggleBtn" class="toolbar-toggle-trigger" onclick="toggleGDocsToolbarVisibility()">Hide Toolbar ˄</button>
 
 <div id="previewModal" class="preview-modal" onclick="closePreviewModal()">
     <div class="preview-modal-content" onclick="event.stopPropagation()">
@@ -570,21 +444,6 @@
 
         <input type="text" id="actionModalSearch" class="action-modal-search" placeholder="Type to search codes library..." oninput="filterActionModalList(this.value)">
         <div id="actionModalList" class="action-modal-list"></div>
-    </div>
-</div>
-
-<!-- Custom Dialog Modal (Replaces native browser alert/confirm loops securely) -->
-<div id="customDialogModal" class="preview-modal" onclick="closeCustomDialog()">
-    <div class="preview-modal-content" onclick="event.stopPropagation()">
-        <div class="preview-modal-header">
-            <span id="customDialogTitle" class="preview-modal-title">Notification</span>
-            <button class="search-close-icon" style="color:#888; font-weight: bold;" onclick="closeCustomDialog()">✕</button>
-        </div>
-        <div id="customDialogBody" class="preview-modal-body" style="margin-bottom: 16px;"></div>
-        <div style="display: flex; gap: 8px; justify-content: flex-end;">
-            <button id="customDialogCancelBtn" class="choice-btn" style="max-width: 100px;" onclick="closeCustomDialog()">Cancel</button>
-            <button id="customDialogConfirmBtn" class="choice-btn active" style="max-width: 100px;">OK</button>
-        </div>
     </div>
 </div>
 
@@ -650,9 +509,6 @@
     const previewModal = document.getElementById('previewModal');
     const modalCodeKey = document.getElementById('modalCodeKey');
     const modalCodeBody = document.getElementById('modalCodeBody');
-    
-    const gdocsToolbar = document.getElementById('gdocsToolbar');
-    const toolbarToggleBtn = document.getElementById('toolbarToggleBtn');
     const themeToggleBtn = document.getElementById('themeToggleBtn');
 
     const actionSelectionModal = document.getElementById('actionSelectionModal');
@@ -661,48 +517,11 @@
     const actionModalList = document.getElementById('actionModalList');
     const modifyAlignmentContainer = document.getElementById('modifyAlignmentContainer');
 
-    const customDialogModal = document.getElementById('customDialogModal');
-    const customDialogTitle = document.getElementById('customDialogTitle');
-    const customDialogBody = document.getElementById('customDialogBody');
-    const customDialogCancelBtn = document.getElementById('customDialogCancelBtn');
-    const customDialogConfirmBtn = document.getElementById('customDialogConfirmBtn');
-
     let rangeCached = null, selectedTextHTML = "", lastExpandedKey = "", lastExpandedValueAppended = "", lastSavedSelectionRange = null;
     let cleanSnapshotMarkup = "", isSearchActive = false;
-    let isToolbarHidden = false;
     
     let activeWorkflowType = ""; 
     let modificationPosition = "before"; 
-
-    // Custom non-blocking modal alert and confirm managers
-    function showCustomAlert(message, title = "Notification") {
-        customDialogTitle.innerText = title;
-        customDialogBody.innerText = message;
-        customDialogCancelBtn.style.display = 'none';
-        customDialogConfirmBtn.innerText = "OK";
-        customDialogConfirmBtn.onclick = closeCustomDialog;
-        customDialogModal.style.display = 'flex';
-    }
-
-    function showCustomConfirm(message, title, onConfirm, onCancel = null) {
-        customDialogTitle.innerText = title;
-        customDialogBody.innerText = message;
-        customDialogCancelBtn.style.display = 'block';
-        customDialogConfirmBtn.innerText = "OK";
-        customDialogConfirmBtn.onclick = () => {
-            closeCustomDialog();
-            if (onConfirm) onConfirm();
-        };
-        customDialogCancelBtn.onclick = () => {
-            closeCustomDialog();
-            if (onCancel) onCancel();
-        };
-        customDialogModal.style.display = 'flex';
-    }
-
-    function closeCustomDialog() {
-        customDialogModal.style.display = 'none';
-    }
 
     function initializeWorkspaceState() {
         editor.innerHTML = "";
@@ -734,24 +553,6 @@
             saveState();
             renderSidebar();
         } catch (err) { console.warn("External asset setup skipped."); }
-    }
-
-    function toggleGDocsToolbarVisibility() {
-        isToolbarHidden = !isToolbarHidden;
-        gdocsToolbar.classList.toggle('hidden', isToolbarHidden);
-        canvasContainer.classList.toggle('toolbar-collapsed', isToolbarHidden);
-        
-        if (isToolbarHidden) {
-            toolbarToggleBtn.innerText = "Show Toolbar ˅";
-            toolbarToggleBtn.style.top = "55px";
-        } else {
-            toolbarToggleBtn.innerText = "Hide Toolbar ˄";
-            if (window.innerWidth <= 768) {
-                toolbarToggleBtn.style.top = "95px";
-            } else {
-                toolbarToggleBtn.style.top = "55px";
-            }
-        }
     }
 
     function triggerMakeNewCodeWorkflow() {
@@ -1004,23 +805,18 @@
         saveState(); if (window.innerWidth <= 768) toggleSidebar();
     }
 
-    function executeFormat(command, value = null) { 
-        if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); }
-        document.execCommand(command, false, value); editor.focus(); saveState(); 
-    }
-
     function downloadAsPDF() { if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); } const originalDocumentTitle = document.title; document.title = "NoteCiter_Document"; if (sidebar.classList.contains('open')) toggleSidebar(); window.print(); document.title = originalDocumentTitle; }
     function toggleSidebar() { sidebar.classList.toggle('open'); canvasContainer.classList.toggle('sidebar-open'); }
     function closeToast() { macroToast.style.display = 'none'; }
     
     function clearCanvas() { 
-        showCustomConfirm("Wipe entire notes canvas clean?", "Clear Canvas", () => {
+        if(confirm("Wipe entire notes canvas clean?")) {
             editor.innerHTML = ""; 
             closeToast(); 
             if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; isSearchActive = false; } 
             saveState(); 
             renderSidebar();
-        });
+        }
     }
 
     function handleKeyDown(e) {
@@ -1051,7 +847,7 @@
         }
     }
 
-    function triggerCollapseHistory() { if (!lastExpandedKey || !lastExpandedValueAppended) return; const currentHTML = editor.innerHTML; if (currentHTML.includes(lastExpandedValueAppended)) { editor.innerHTML = currentHTML.replace(lastExpandedValueAppended, lastExpandedKey); closeToast(); lastSavedSelectionRange = null; saveState(); } else { showCustomAlert("The expanded text has been modified.", "Undo Action"); closeToast(); } }
+    function triggerCollapseHistory() { if (!lastExpandedKey || !lastExpandedValueAppended) return; const currentHTML = editor.innerHTML; if (currentHTML.includes(lastExpandedValueAppended)) { editor.innerHTML = currentHTML.replace(lastExpandedValueAppended, lastExpandedKey); closeToast(); lastSavedSelectionRange = null; saveState(); } else { alert("The expanded text has been modified."); closeToast(); } }
     function copyActiveMacroText() { if (!lastExpandedKey || !dictionary[lastExpandedKey]) return; const htmlContent = dictionary[lastExpandedKey], tempDiv = document.createElement('div'); tempDiv.innerHTML = htmlContent; const plainText = tempDiv.innerText || tempDiv.textContent; const blobHtml = new Blob([htmlContent], { type: 'text/html' }), blobText = new Blob([plainText], { type: 'text/plain' }); const data = [new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })]; navigator.clipboard.write(data).then(() => { const oldText = activeMacroKey.innerText; activeMacroKey.innerText = "COPIED!"; setTimeout(() => { activeMacroKey.innerText = oldText; }, 1000); }); }
 
     editor.addEventListener('contextmenu', function(e) {
@@ -1084,55 +880,14 @@
     }
 
     function exportJSON() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dictionary, null, 2)), downloadAnchor = document.createElement('a'); downloadAnchor.setAttribute("href", dataStr); downloadAnchor.setAttribute("download", "noteciter_dictionary.json"); document.body.appendChild(downloadAnchor); downloadAnchor.click(); downloadAnchor.remove(); }
-    
-    function importJSON(event) { 
-        const file = event.target.files[0]; 
-        if (!file) return; 
-        const reader = new FileReader(); 
-        reader.onload = function(e) { 
-            try { 
-                const imported = JSON.parse(e.target.result); 
-                if (typeof imported === 'object' && imported !== null) { 
-                    dictionary = { ...dictionary, ...imported }; 
-                    saveState(); 
-                    renderSidebar(); 
-                } 
-            } catch (err) { 
-                showCustomAlert("Incorrect data format.", "Import Failed"); 
-            } 
-        }; 
-        reader.readAsText(file); 
-    }
-
-    function clearAll() { 
-        const totalCodesCount = Object.keys(dictionary).length; 
-        if (totalCodesCount > 0) { 
-            showCustomConfirm("Purge dictionary codes registry completely?\n\nClick [OK] to export/backup first, or [Cancel] to skip backup.", "Clear Dictionary", () => {
-                exportJSON();
-                dictionary = {}; 
-                saveState(); 
-                renderSidebar(); 
-            }, () => {
-                dictionary = {}; 
-                saveState(); 
-                renderSidebar(); 
-            });
-        } else {
-            dictionary = {}; 
-            saveState(); 
-            renderSidebar(); 
-        }
-    }
-
+    function importJSON(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const imported = JSON.parse(e.target.result); if (typeof imported === 'object' && imported !== null) { dictionary = { ...dictionary, ...imported }; saveState(); renderSidebar(); } } catch (err) { alert("Incorrect data format."); } }; reader.readAsText(file); }
+    function clearAll() { const totalCodesCount = Object.keys(dictionary).length; if (totalCodesCount > 0) { const confirmBackupBeforeReset = confirm("Purge dictionary codes registry completely?\n\nClick [OK] to export/backup first, or [Cancel] to skip backup."); if (confirmBackupBeforeReset) exportJSON(); } dictionary = {}; saveState(); renderSidebar(); }
     function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
     function runGlobalInitialization() {
         initializeWorkspaceState();
         renderSidebar();
         loadExternalLibrary();
-        if (window.innerWidth <= 768) {
-            toolbarToggleBtn.style.top = "95px";
-        }
     }
 
     window.onload = runGlobalInitialization;
