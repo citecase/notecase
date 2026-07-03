@@ -11,6 +11,29 @@
             --border-color: #e0e0e0;
             --accent-color: #f9f9f9;
             --primary-accent: #004ccb;
+            --toolbar-bg: #ffffff;
+            --inverse-text: #ffffff;
+            --inverse-bg: #111111;
+            --inverse-border: #222222;
+            --inverse-accent: #252525;
+            --mark-bg: #ffeb3b;
+            --mark-text: #000000;
+        }
+
+        /* DARK THEME PROPERTY MAP OVERRIDES */
+        body.dark-theme {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --border-color: #2c2c2c;
+            --accent-color: #1a1a1a;
+            --primary-accent: #2979ff;
+            --toolbar-bg: #1e1e1e;
+            --inverse-text: #000000;
+            --inverse-bg: #ffffff;
+            --inverse-border: #e0e0e0;
+            --inverse-accent: #f5f5f5;
+            --mark-bg: #ffea00;
+            --mark-text: #000000;
         }
 
         body {
@@ -23,9 +46,9 @@
             min-height: 100vh;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
-        /* Top Navbar */
         .top-navbar {
             position: fixed;
             top: 0;
@@ -36,12 +59,17 @@
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
             padding: 0 16px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: var(--bg-color);
             border-bottom: 1px solid var(--border-color);
             z-index: 100;
             box-sizing: border-box;
+        }
+
+        .brand-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-self: start;
         }
 
         .brand-title {
@@ -49,9 +77,8 @@
             font-weight: 800;
             letter-spacing: 0.5px;
             text-transform: uppercase;
-            color: #000;
+            color: var(--text-color);
             user-select: none;
-            justify-self: start;
         }
 
         .header-search-container {
@@ -64,7 +91,7 @@
         .search-input {
             background: var(--accent-color);
             border: 1px solid var(--border-color);
-            color: #000000;
+            color: var(--text-color);
             padding: 6px 12px;
             font-size: 13px;
             border-radius: 20px;
@@ -76,10 +103,15 @@
         }
 
         .search-input:focus {
-            background: #ffffff;
-            border-color: #a0a0a0;
+            background: var(--bg-color);
+            border-color: var(--primary-accent);
             width: 340px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        body.dark-theme .search-input {
+            background: #222222;
+            border-color: #333333;
         }
 
         .search-mode-indicator {
@@ -90,7 +122,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: none;
-            background: #ffffff;
+            background: var(--bg-color);
             padding: 2px 6px;
             border-radius: 4px;
             border: 1px solid var(--border-color);
@@ -108,35 +140,35 @@
             border: none;
             padding: 8px 10px;
             font-size: 12px;
-            color: #555;
+            color: var(--text-color);
+            opacity: 0.8;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: 600;
             border-radius: 4px;
-            transition: background 0.15s ease, color 0.15s ease;
+            transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
         }
 
         .nav-btn:hover, .nav-btn:active {
-            color: #000;
+            opacity: 1;
             background-color: var(--accent-color);
         }
 
         mark.search-match {
-            background-color: #ffeb3b !important;
-            color: #000000 !important;
+            background-color: var(--mark-bg) !important;
+            color: var(--mark-text) !important;
             border-radius: 2px;
             padding: 0 1px;
         }
 
-        /* PERMANENT STANDARD GOOGLE DOCS STYLE TOOLBAR PANEL */
         .gdocs-toolbar-container {
             position: fixed;
             top: 55px;
             left: 0;
             right: 0;
             height: 40px;
-            background: #ffffff;
+            background: var(--toolbar-bg);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
@@ -164,7 +196,8 @@
         .gdocs-btn {
             background: transparent;
             border: none;
-            color: #333333;
+            color: var(--text-color);
+            opacity: 0.8;
             width: 28px;
             height: 28px;
             font-size: 12px;
@@ -177,13 +210,13 @@
         }
 
         .gdocs-btn:hover {
+            opacity: 1;
             background-color: var(--accent-color);
-            color: #000000;
         }
 
         .gdocs-select {
             background: var(--accent-color);
-            color: #333333;
+            color: var(--text-color);
             border: 1px solid var(--border-color);
             padding: 3px 6px;
             font-size: 12px;
@@ -199,13 +232,12 @@
             margin: 0 6px;
         }
 
-        /* LOW-PROFILE INTERACTIVE VISIBILITY CONTROLLER BUTTON */
         .toolbar-toggle-trigger {
             position: fixed;
             top: 55px;
             right: 24px;
             z-index: 96;
-            background: #ffffff;
+            background: var(--toolbar-bg);
             border: 1px solid var(--border-color);
             border-top: none;
             font-size: 10px;
@@ -215,34 +247,51 @@
             padding: 3px 8px;
             border-radius: 0 0 4px 4px;
             cursor: pointer;
-            color: #666666;
+            color: var(--text-color);
+            opacity: 0.7;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: top 0.2s ease;
+            transition: top 0.2s ease, opacity 0.2s ease;
         }
+        .toolbar-toggle-trigger:hover { opacity: 1; }
 
-        /* Workspace Viewport Dynamic Push Padding Configurations */
         .canvas-container {
             flex-grow: 1;
             display: flex;
             justify-content: center;
-            padding-top: 135px; /* Fits top bar + doc bar combined spacing */
+            padding-top: 120px;
             padding-bottom: 60px;
             transition: padding-top 0.2s ease, padding-right 0.25s ease;
             width: 100%;
         }
 
         .canvas-container.toolbar-collapsed {
-            padding-top: 90px;
+            padding-top: 75px;
         }
 
-        /* Modals and Overlays */
+        .document-body {
+            width: 100%;
+            max-width: 720px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .editor-canvas {
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-color);
+            outline: none;
+            min-height: 550px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
         .preview-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
             z-index: 400;
             display: none;
@@ -251,12 +300,13 @@
         }
 
         .preview-modal-content {
-            background: #ffffff;
+            background: var(--bg-color);
+            color: var(--text-color);
             width: 90%;
             max-width: 500px;
             border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 12px 36px rgba(0,0,0,0.15);
+            box-shadow: 0 12px 36px rgba(0,0,0,0.3);
             box-sizing: border-box;
             border: 1px solid var(--border-color);
         }
@@ -273,8 +323,8 @@
         .preview-modal-title {
             font-family: monospace;
             font-weight: bold;
-            background: #000;
-            color: #fff;
+            background: var(--inverse-bg);
+            color: var(--inverse-text);
             padding: 2px 6px;
             font-size: 13px;
             border-radius: 4px;
@@ -286,7 +336,7 @@
             max-height: 300px;
             overflow-y: auto;
             white-space: pre-wrap;
-            color: #222;
+            color: var(--text-color);
         }
 
         .search-close-icon {
@@ -296,6 +346,7 @@
             cursor: pointer;
             font-size: 14px;
         }
+        .search-close-icon:hover { color: var(--text-color); }
 
         .alignment-choice-box {
             display: flex;
@@ -308,6 +359,7 @@
             padding: 8px;
             border: 1px solid var(--border-color);
             background: var(--accent-color);
+            color: var(--text-color);
             border-radius: 6px;
             font-size: 11px;
             font-weight: bold;
@@ -318,7 +370,7 @@
 
         .choice-btn.active {
             background: var(--primary-accent);
-            color: #fff;
+            color: #ffffff;
             border-color: var(--primary-accent);
         }
 
@@ -326,6 +378,8 @@
             width: 100%;
             padding: 8px 12px;
             font-size: 14px;
+            background: var(--accent-color);
+            color: var(--text-color);
             border: 1px solid var(--border-color);
             border-radius: 6px;
             outline: none;
@@ -347,6 +401,7 @@
             font-size: 13px;
             cursor: pointer;
             border-radius: 4px;
+            color: var(--text-color);
         }
 
         .action-modal-item:hover {
@@ -354,21 +409,20 @@
             font-weight: bold;
         }
 
-        /* Global Macro Toast */
         .global-macro-toast {
             position: fixed;
             top: 65px;
             left: 50%;
             transform: translateX(-50%);
-            background: #111111;
-            color: #ffffff;
+            background: var(--inverse-bg);
+            color: var(--inverse-text);
             padding: 8px 16px;
             border-radius: 6px;
             display: none;
             align-items: center;
             gap: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            border: 1px solid #222222;
+            border: 1px solid var(--inverse-border);
             z-index: 200;
             font-size: 12px;
             width: calc(100% - 32px);
@@ -376,44 +430,24 @@
             box-sizing: border-box;
         }
 
-        .toast-label-group { display: flex; align-items: center; gap: 6px; border-right: 1px solid #333333; padding-right: 12px; flex-shrink: 0; }
+        .toast-label-group { display: flex; align-items: center; gap: 6px; border-right: 1px solid var(--border-color); padding-right: 12px; flex-shrink: 0; }
         .toast-info-text { color: #888888; font-size: 10px; text-transform: uppercase; }
-        .toast-label { font-family: SFMono-Regular, Consolas, monospace; font-weight: bold; color: #ffffff; background: #252525; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+        .toast-label { font-family: SFMono-Regular, Consolas, monospace; font-weight: bold; color: var(--inverse-text); background: var(--inverse-accent); padding: 2px 6px; border-radius: 4px; font-size: 11px; }
         .toast-action-group { display: flex; align-items: center; gap: 6px; flex-grow: 1; justify-content: flex-end; }
-        .toast-btn { background: #ffffff; color: #000000; border: none; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 6px 10px; cursor: pointer; border-radius: 4px; }
-        .toast-btn-secondary { background: transparent; color: #ffffff; border: 1px solid #333333; }
+        
+        .toast-btn { 
+            background: var(--inverse-bg); 
+            color: var(--inverse-text); 
+            border: 1px solid var(--border-color);
+            font-size: 10px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            padding: 6px 10px; 
+            cursor: pointer; 
+            border-radius: 4px; 
+        }
+        .toast-btn-secondary { background: transparent; color: var(--inverse-text); border: 1px solid var(--border-color); }
         .toast-close-btn { background: transparent; border: none; color: #666666; font-size: 14px; cursor: pointer; padding: 0 2px; }
-
-        .document-body {
-            width: 100%;
-            max-width: 720px;
-            padding: 0 20px;
-            box-sizing: border-box;
-        }
-
-        .editor-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            border: none;
-            outline: none;
-            width: 100%;
-            color: #000000;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            padding-bottom: 8px;
-            border-bottom: 1px dashed var(--border-color);
-        }
-
-        .editor-canvas {
-            font-size: 16px;
-            line-height: 1.7;
-            color: #222;
-            outline: none;
-            min-height: 500px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
 
         /* Sidebar Drawer */
         .drawer-sidebar {
@@ -431,31 +465,32 @@
             flex-direction: column;
             z-index: 90;
             transition: right 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
         }
 
         .drawer-sidebar.open { right: 0; }
         .drawer-sidebar h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px; }
 
         .sidebar-io-group { display: flex; flex-wrap: wrap; gap: 4px; background: var(--accent-color); padding: 6px; border-radius: 6px; margin-bottom: 12px; border: 1px solid var(--border-color); }
-        .sidebar-io-btn { flex: 1; min-width: 70px; background: #000; border: none; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; cursor: pointer; padding: 6px 4px; border-radius: 4px; text-align: center; }
-        .sidebar-io-btn:hover { background: #222; }
+        .sidebar-io-btn { flex: 1; min-width: 70px; background: var(--inverse-bg); color: var(--inverse-text); border: none; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; padding: 6px 4px; border-radius: 4px; text-align: center; }
+        .sidebar-io-btn:hover { opacity: 0.9; }
 
         .code-list { flex-grow: 1; overflow-y: auto; margin-bottom: 16px; -webkit-overflow-scrolling: touch; }
-        .code-item { padding: 10px 6px; border-bottom: 1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center; }
+        .code-item { padding: 10px 6px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         
-        .code-key { font-family: monospace; font-weight: bold; background: #000; color: #fff; padding: 4px 8px; font-size: 12px; border-radius: 4px; cursor: pointer; touch-action: manipulation; }
+        .code-key { font-family: monospace; font-weight: bold; background: var(--inverse-bg); color: var(--inverse-text); padding: 4px 8px; font-size: 12px; border-radius: 4px; cursor: pointer; touch-action: manipulation; }
         .code-key:active { transform: scale(0.95); }
         .remove-btn { color: #aa0000; cursor: pointer; font-weight: bold; font-size: 16px; padding: 4px 8px; }
 
         /* Custom Context Menu */
-        .context-menu { position: absolute; display: none; background: #111111; color: #ffffff; z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid #222222; padding: 4px 0; min-width: 150px; }
+        .context-menu { position: absolute; display: none; background: #111111; color: #ffffff; z-index: 1000; box-shadow: 0 8px 24px rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid #222222; padding: 4px 0; min-width: 150px; }
+        body.dark-theme .context-menu { background: #222222; border-color: #333333; }
         .context-menu-item { padding: 10px 16px; font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.1s; }
         .context-menu-item:hover { background: #252525; color: #ffffff; }
 
         @media (max-width: 768px) {
             .top-navbar { grid-template-columns: 1fr; gap: 8px; height: auto; padding: 10px 16px; }
-            .brand-title { justify-self: center; }
+            .brand-title-group { justify-self: center; }
             .search-input { width: 100% !important; }
             .nav-btn-group { justify-self: center; width: 100%; justify-content: center; }
             .canvas-container { padding-top: 175px; }
@@ -468,19 +503,21 @@
 <body>
 
 <div class="top-navbar">
-    <div class="brand-title">NoteCiter</div>
+    <div class="brand-title-group">
+        <button id="themeToggleBtn" class="nav-btn" style="border: 1px solid var(--border-color); padding: 4px 8px; font-size: 10px;" onclick="toggleWorkspaceThemeScheme()">Dark 🌙</button>
+        <div class="brand-title">NoteCiter</div>
+    </div>
     <div class="header-search-container">
         <input type="text" id="searchInput" class="search-input" placeholder="Search Canvas & Library (Quotes = Exact)..." oninput="executeGlobalDualSearch(this.value)">
         <div id="searchModeIndicator" class="search-mode-indicator">Mode: Ready</div>
     </div>
     <div class="nav-btn-group">
-        <button class="nav-btn" style="color: #004ccb; font-weight: bold;" onclick="downloadAsPDF()">PDF</button>
+        <button class="nav-btn" style="color: var(--primary-accent); font-weight: bold;" onclick="downloadAsPDF()">PDF</button>
         <button class="nav-btn" style="color: red;" onclick="clearCanvas()">Wipe</button>
-        <button class="nav-btn" style="color: #000; font-weight: bold;" onclick="toggleSidebar()">Codes ☰</button>
+        <button class="nav-btn" style="color: var(--text-color); font-weight: bold;" onclick="toggleSidebar()">Codes ☰</button>
     </div>
 </div>
 
-<!-- NEW STATIC GOOGLE DOCS STYLE WORKSPACE TOOLBAR BUTTON GROUP -->
 <div id="gdocsToolbar" class="gdocs-toolbar-container">
     <div class="gdocs-toolbar">
         <select class="gdocs-select" onchange="executeFormat('fontSize', this.value); this.selectedIndex=0;">
@@ -504,14 +541,13 @@
     </div>
 </div>
 
-<!-- LOW-PROFILE TOOLBAR TOGGLE ACTION BUTTON -->
 <button id="toolbarToggleBtn" class="toolbar-toggle-trigger" onclick="toggleGDocsToolbarVisibility()">Hide Toolbar ˄</button>
 
 <div id="previewModal" class="preview-modal" onclick="closePreviewModal()">
     <div class="preview-modal-content" onclick="event.stopPropagation()">
         <div class="preview-modal-header">
             <span id="modalCodeKey" class="preview-modal-title">CODE</span>
-            <button class="search-close-icon" style="color:#000; font-weight: bold;" onclick="closePreviewModal()">✕</button>
+            <button class="search-close-icon" style="color:#888; font-weight: bold;" onclick="closePreviewModal()">✕</button>
         </div>
         <div id="modalCodeBody" class="preview-modal-body"></div>
     </div>
@@ -521,7 +557,7 @@
     <div class="preview-modal-content" onclick="event.stopPropagation()">
         <div class="preview-modal-header">
             <span id="actionModalTitle" class="preview-modal-title">Select Target Code</span>
-            <button class="search-close-icon" style="color:#000; font-weight: bold;" onclick="closeActionModal()">✕</button>
+            <button class="search-close-icon" style="color:#888; font-weight: bold;" onclick="closeActionModal()">✕</button>
         </div>
         
         <div id="modifyAlignmentContainer" class="alignment-choice-box" style="display:none;">
@@ -548,7 +584,6 @@
 
 <div id="canvasContainer" class="canvas-container">
     <div class="document-body">
-        <div id="docTitle" class="editor-title" contenteditable="true" placeholder="Untitled Document">Untitled Document</div>
         <div id="editor" class="editor-canvas" contenteditable="true" onkeydown="handleKeyDown(event)"></div>
     </div>
 </div>
@@ -580,7 +615,6 @@
     const customMenu = document.getElementById('customMenu');
     const macroToast = document.getElementById('macroToast');
     const activeMacroKey = document.getElementById('activeMacroKey');
-    const docTitle = document.getElementById('docTitle');
     const searchInput = document.getElementById('searchInput');
     const searchModeIndicator = document.getElementById('searchModeIndicator');
     const previewModal = document.getElementById('previewModal');
@@ -589,6 +623,7 @@
     
     const gdocsToolbar = document.getElementById('gdocsToolbar');
     const toolbarToggleBtn = document.getElementById('toolbarToggleBtn');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
 
     const actionSelectionModal = document.getElementById('actionSelectionModal');
     const actionModalTitle = document.getElementById('actionModalTitle');
@@ -604,11 +639,21 @@
     let modificationPosition = "before"; 
 
     function initializeWorkspaceState() {
-        docTitle.innerHTML = "Untitled Document";
         editor.innerHTML = "";
         localStorage.setItem('noteciter_visited', 'true');
         cleanSnapshotMarkup = "";
+        
+        if (localStorage.getItem('noteciter_dark_theme_enabled') === 'true') {
+            document.body.classList.add('dark-theme');
+            themeToggleBtn.innerText = "Light ☀️";
+        }
         saveState();
+    }
+
+    function toggleWorkspaceThemeScheme() {
+        const isCurrentlyDark = document.body.classList.toggle('dark-theme');
+        localStorage.setItem('noteciter_dark_theme_enabled', isCurrentlyDark);
+        themeToggleBtn.innerText = isCurrentlyDark ? "Light ☀️" : "Dark 🌙";
     }
 
     async function loadExternalLibrary() {
@@ -625,7 +670,6 @@
         } catch (err) { console.warn("External asset setup skipped."); }
     }
 
-    // TOGGLE VISIBILITY FOR THE DOCS FORMATTER BAR
     function toggleGDocsToolbarVisibility() {
         isToolbarHidden = !isToolbarHidden;
         gdocsToolbar.classList.toggle('hidden', isToolbarHidden);
@@ -636,7 +680,6 @@
             toolbarToggleBtn.style.top = "55px";
         } else {
             toolbarToggleBtn.innerText = "Hide Toolbar ˄";
-            // Reposition toggle safely dynamically based on viewport media queries
             if (window.innerWidth <= 768) {
                 toolbarToggleBtn.style.top = "95px";
             } else {
@@ -833,6 +876,10 @@
 
     function closePreviewModal() { previewModal.style.display = 'none'; }
 
+    document.addEventListener('click', (e) => { 
+        if (!customMenu.contains(e.target)) customMenu.style.display = 'none'; 
+    });
+
     function renderSidebar(activeSearchQuery = null) {
         const container = document.getElementById('codeList');
         container.innerHTML = '';
@@ -865,7 +912,6 @@
     editor.addEventListener('click', trackCaretPosition);
     editor.addEventListener('keyup', trackCaretPosition);
     editor.addEventListener('touchend', () => setTimeout(trackCaretPosition, 50));
-    docTitle.addEventListener('keyup', saveState);
 
     function injectMacroFromRegistry(key) {
         if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); }
@@ -875,18 +921,29 @@
         let targetRange = null;
         if (lastSavedSelectionRange && editor.contains(lastSavedSelectionRange.startContainer)) { targetRange = lastSavedSelectionRange.cloneRange(); } 
         else { targetRange = document.createRange(); targetRange.selectNodeContents(editor); targetRange.collapse(false); }
-        const fragment = document.createDocumentFragment(), tempEl = document.createElement("div");
+        
+        const fragment = document.createDocumentFragment();
+        const tempEl = document.createElement("div");
         tempEl.innerHTML = dictionary[key];
-        lastExpandedValueAppended = dictionary[key]; lastExpandedKey = key;
+        lastExpandedValueAppended = dictionary[key]; 
+        lastExpandedKey = key;
+
         while (tempEl.firstChild) fragment.appendChild(tempEl.firstChild);
         targetRange.insertNode(fragment);
+        
         const tailSpacer = document.createTextNode('\u00A0');
-        targetRange.collapse(false); targetRange.insertNode(tailSpacer);
-        targetRange.setStartAfter(tailSpacer); targetRange.collapse(true);
-        selection.removeAllRanges(); selection.addRange(targetRange);
+        targetRange.collapse(false); 
+        targetRange.insertNode(tailSpacer);
+        targetRange.setStartAfter(tailSpacer); 
+        targetRange.collapse(true);
+        selection.removeAllRanges(); 
+        selection.addRange(targetRange);
+
         lastSavedSelectionRange = targetRange.cloneRange();
-        activeMacroKey.innerText = key; macroToast.style.display = 'flex';
-        saveState(); if (window.innerWidth <= 768) toggleSidebar();
+        activeMacroKey.innerText = key; 
+        macroToast.style.display = 'flex';
+        saveState(); 
+        if (window.innerWidth <= 768) toggleSidebar();
     }
 
     function executeFormat(command, value = null) { 
@@ -894,10 +951,10 @@
         document.execCommand(command, false, value); editor.focus(); saveState(); 
     }
 
-    function downloadAsPDF() { if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); } const titleText = docTitle.innerText.trim(); const originalDocumentTitle = document.title; document.title = titleText ? titleText : "NoteCiter_Document"; if (sidebar.classList.contains('open')) toggleSidebar(); window.print(); document.title = originalDocumentTitle; }
+    function downloadAsPDF() { if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); } const originalDocumentTitle = document.title; document.title = "NoteCiter_Document"; if (sidebar.classList.contains('open')) toggleSidebar(); window.print(); document.title = originalDocumentTitle; }
     function toggleSidebar() { sidebar.classList.toggle('open'); canvasContainer.classList.toggle('sidebar-open'); }
     function closeToast() { macroToast.style.display = 'none'; }
-    function clearCanvas() { if(confirm("Wipe entire notes canvas clean?")) { editor.innerHTML = ""; docTitle.innerHTML = "Untitled Document"; closeToast(); if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; isSearchActive = false; } saveState(); renderSidebar(); } }
+    function clearCanvas() { if(confirm("Wipe entire notes canvas clean?")) { editor.innerHTML = ""; closeToast(); if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; isSearchActive = false; } saveState(); renderSidebar(); } }
 
     function handleKeyDown(e) {
         if (isSearchActive) { searchInput.value = ""; searchModeIndicator.style.display = "none"; editor.innerHTML = cleanSnapshotMarkup; isSearchActive = false; renderSidebar(); }
@@ -912,9 +969,14 @@
                 if (dictionary[lastWord]) {
                     e.preventDefault(); const wordStartOffset = cursorOffset - lastWord.length;
                     textNode.deleteData(wordStartOffset, lastWord.length); range.setStart(textNode, wordStartOffset); range.collapse(true);
-                    const fragment = document.createDocumentFragment(), tempEl = document.createElement("div");
-                    tempEl.innerHTML = dictionary[lastWord]; lastExpandedValueAppended = dictionary[lastWord]; lastExpandedKey = lastWord;
+                    
+                    const fragment = document.createDocumentFragment();
+                    const tempEl = document.createElement("div");
+                    tempEl.innerHTML = dictionary[lastWord]; 
+                    lastExpandedValueAppended = dictionary[lastWord]; 
+                    lastExpandedKey = lastWord;
                     while (tempEl.firstChild) fragment.appendChild(tempEl.firstChild);
+                    
                     range.insertNode(fragment);
                     const tailSpacer = document.createTextNode(e.key === ' ' ? '\u00A0' : '\n\n');
                     range.collapse(false); range.insertNode(tailSpacer); range.setStartAfter(tailSpacer); range.collapse(true);
@@ -941,7 +1003,6 @@
             customMenu.style.display = 'block'; 
         }
     });
-    document.addEventListener('click', (e) => { if (!customMenu.contains(e.target)) customMenu.style.display = 'none'; });
 
     document.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
@@ -955,18 +1016,21 @@
     function saveState() { 
         if (isSearchActive) return; 
         localStorage.setItem('notebook_rich_canvas_macros', JSON.stringify(dictionary)); 
-        localStorage.setItem('noteciter_saved_title', docTitle.innerHTML); 
         localStorage.setItem('noteciter_saved_content', editor.innerHTML); 
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    function runGlobalInitialization() {
         initializeWorkspaceState();
         renderSidebar();
         loadExternalLibrary();
         if (window.innerWidth <= 768) {
             toolbarToggleBtn.style.top = "95px";
         }
-    });
+    }
+
+    window.onload = runGlobalInitialization;
 </script>
 </body>
 </html>
+```
+eof
